@@ -1,0 +1,3 @@
+at branch main, this file is empty. (this line is invisible)
+
+at branch staging, this file is visible. 
