@@ -1,5 +1,5 @@
 import typing as t
-import fastapi as p
+from fastapi import Depends
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,4 +18,4 @@ def create_settings() -> Settings:
     return settings
 
 
-SettingsDep = t.Annotated[Settings, p.Depends(create_settings)]
+SettingsDep = t.Annotated[Settings, Depends(create_settings)]

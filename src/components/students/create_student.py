@@ -4,9 +4,12 @@ from fastapi import Depends
 from ...constants.mongo import CollectionName
 from ...common.models import StudentModel
 from ...dependencies import MongoDbDep, LoggerDep
+from ...interfaces import IBaseComponent
+
+ICreateStudent = IBaseComponent["CreateStudent.Request", "CreateStudent.Response"]
 
 
-class CreateStudent:
+class CreateStudent(ICreateStudent):
     def __init__(self, db: MongoDbDep, logger: LoggerDep) -> None:
         self._collection = db.get_collection(CollectionName.STUDENTS)
         self._logger = logger
@@ -17,7 +20,7 @@ class CreateStudent:
     class Response(p.BaseModel):
         student: StudentModel | None = None
 
-    async def execute_async(self, request: "Request") -> "Response":
+    async def aexecute(self, request: "Request") -> "Response":
         self._logger.info("Creating a new student in the database.")
         new_student = self._collection.insert_one(
             request.model_dump(by_alias=True, exclude={"id"})

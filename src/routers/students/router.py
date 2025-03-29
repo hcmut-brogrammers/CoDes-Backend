@@ -1,7 +1,7 @@
-import fastapi as p
+from fastapi import APIRouter, status
 from ...components.students import GetStudentsDep, CreateStudentDep
 
-router = p.APIRouter(
+router = APIRouter(
     prefix="/students",
     tags=["students"],
 )
@@ -12,10 +12,10 @@ router = p.APIRouter(
     response_model=GetStudentsDep.Response,
     response_description="List of students",
     response_model_by_alias=False,
-    status_code=p.status.HTTP_200_OK,
+    status_code=status.HTTP_200_OK,
 )
 async def get_students(get_students: GetStudentsDep):
-    return await get_students.execute_async()
+    return await get_students.aexecute()
 
 
 @router.post(
@@ -23,9 +23,9 @@ async def get_students(get_students: GetStudentsDep):
     response_model=CreateStudentDep.Response,
     response_description="Student created",
     response_model_by_alias=False,
-    status_code=p.status.HTTP_201_CREATED,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_student(
     create_student: CreateStudentDep, request: CreateStudentDep.Request
 ):
-    return await create_student.execute_async(request)
+    return await create_student.aexecute(request)

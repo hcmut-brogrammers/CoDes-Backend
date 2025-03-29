@@ -4,9 +4,12 @@ from fastapi import Depends
 from ...constants.mongo import CollectionName
 from ...common.models import StudentModel
 from ...dependencies import MongoDbDep, LoggerDep
+from ...interfaces.base_component import IBaseComponent
+
+IGetStudents = IBaseComponent[None, "GetStudents.Response"]
 
 
-class GetStudents:
+class GetStudents(IGetStudents):
     def __init__(self, db: MongoDbDep, logger: LoggerDep) -> None:
         self._collection = db.get_collection(CollectionName.STUDENTS)
         self._logger = logger
@@ -14,7 +17,7 @@ class GetStudents:
     class Response(p.BaseModel):
         students: list[StudentModel] = []
 
-    async def execute_async(self) -> "Response":
+    async def aexecute(self, _=None) -> "Response":
         self._logger.info("Fetching all students from the database.")
         cursor = self._collection.find({})
         students = [StudentModel(**student) for student in cursor]

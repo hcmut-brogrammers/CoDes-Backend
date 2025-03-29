@@ -1,5 +1,5 @@
-import fastapi as p
 import typing as t
+from fastapi import Depends
 from pymongo.database import Database
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -20,4 +20,4 @@ def create_mongodb_database() -> Database:
         raise e
 
 
-MongoDbDep = t.Annotated[Database, p.Depends(create_mongodb_database)]
+MongoDbDep = t.Annotated[Database, Depends(create_mongodb_database)]

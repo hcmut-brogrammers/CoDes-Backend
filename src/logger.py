@@ -1,7 +1,7 @@
 import logging
 import sys
 import typing as t
-import fastapi as p
+from fastapi import Depends
 from functools import lru_cache
 
 logger = logging.getLogger(__name__)
@@ -21,4 +21,4 @@ def create_logger() -> logging.Logger:
     return logger
 
 
-LoggerDep = t.Annotated[logging.Logger, p.Depends(create_logger)]
+LoggerDep = t.Annotated[logging.Logger, Depends(create_logger)]
