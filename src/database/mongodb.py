@@ -1,8 +1,10 @@
 import typing as t
+
 from fastapi import Depends
 from pymongo.database import Database
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+
 from ..config import settings
 
 TEST_DATABASE_NAME = "students"

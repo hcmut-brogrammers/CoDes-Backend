@@ -1,8 +1,9 @@
+from typing import Union
+
 import pydantic as p
 from fastapi import FastAPI
-from typing import Union
-from .routers import students
 
+from .routers import students
 
 app = FastAPI()
 

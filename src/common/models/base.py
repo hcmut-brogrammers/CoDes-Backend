@@ -1,5 +1,6 @@
-import pydantic as p
 from typing import Annotated
+
+import pydantic as p
 
 PyObjectId = Annotated[str, p.BeforeValidator(str)]
 

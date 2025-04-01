@@ -1,9 +1,11 @@
-import pydantic as p
 import typing as t
+
+import pydantic as p
 from fastapi import Depends
-from ...constants.mongo import CollectionName
+
 from ...common.models import StudentModel
-from ...dependencies import MongoDbDep, LoggerDep
+from ...constants.mongo import CollectionName
+from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces import IBaseComponent
 
 ICreateStudent = IBaseComponent["CreateStudent.Request", "CreateStudent.Response"]
@@ -22,9 +24,7 @@ class CreateStudent(ICreateStudent):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info("Creating a new student in the database.")
-        new_student = self._collection.insert_one(
-            request.model_dump(by_alias=True, exclude={"id"})
-        )
+        new_student = self._collection.insert_one(request.model_dump(by_alias=True, exclude={"id"}))
         created_student = self._collection.find_one({"_id": new_student.inserted_id})
         if not created_student:
             return self.Response()
