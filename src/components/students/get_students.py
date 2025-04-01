@@ -1,9 +1,11 @@
-import pydantic as p
 import typing as t
+
+import pydantic as p
 from fastapi import Depends
-from ...constants.mongo import CollectionName
+
 from ...common.models import StudentModel
-from ...dependencies import MongoDbDep, LoggerDep
+from ...constants.mongo import CollectionName
+from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces.base_component import IBaseComponent
 
 IGetStudents = IBaseComponent[None, "GetStudents.Response"]

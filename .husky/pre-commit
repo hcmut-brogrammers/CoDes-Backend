@@ -1,0 +1,6 @@
+echo "[Python] Formatting code: running isort..."
+isort .
+
+echo "[Python] Formatting code: running black..."
+black .
+exit $?

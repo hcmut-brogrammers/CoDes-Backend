@@ -4,3 +4,4 @@ pymongo[srv]
 pytest-cov
 pytest
 pytest-asyncio
+black

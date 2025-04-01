@@ -46,6 +46,16 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### 4. Install Node.js Dependencies
+
+To install the required Node.js dependencies listed in `package.json`, run the following command:
+
+```bash
+yarn install
+```
+
+This will install all dependencies and devDependencies specified in the `package.json` file.
+
 ## Running the Project
 
 To start the FastAPI application, use the command:
@@ -103,6 +113,14 @@ pytest --cov=src --cov-report=html
 ```
 
 The HTML report will be saved in a `htmlcov` directory. Open `htmlcov/index.html` in a browser to view the detailed coverage report.
+
+## Formatting
+
+To ensure consistent import formatting across the project, install the `isort` extension for Python in Visual Studio Code:
+
+[Install isort Extension](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+
+After installation, you can format imports in your Python files by running the `Sort Imports` command in VS Code.
 
 ## Additional Information
 

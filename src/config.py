@@ -1,6 +1,7 @@
 import typing as t
-from fastapi import Depends
 from functools import lru_cache
+
+from fastapi import Depends
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

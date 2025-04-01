@@ -1,8 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock, Mock
+
+import pytest
 from pydantic import BaseModel, ConfigDict
-from ....components.students.get_students import GetStudents
+
 from ....common.models import StudentModel
+from ....components.students.get_students import GetStudents
 from ....constants.mongo import CollectionName
 
 
@@ -23,9 +25,7 @@ class TestGetStudents:
         return MockSetup(db=mock_db, logger=mock_logger, collection=mock_collection)
 
     def verify_interactions(self, mock_logger, mock_db, mock_collection) -> None:
-        mock_logger.info.assert_called_once_with(
-            "Fetching all students from the database."
-        )
+        mock_logger.info.assert_called_once_with("Fetching all students from the database.")
         mock_db.get_collection.assert_called_once_with(CollectionName.STUDENTS)
         mock_collection.find.assert_called_once_with({})
 
