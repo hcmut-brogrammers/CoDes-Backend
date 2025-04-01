@@ -1,3 +1,3 @@
-from .base_component import IBaseComponent
+from .base_component import IBaseComponent, IBaseComponentWithoutRequest
 
-__all__ = ["IBaseComponent"]
+__all__ = ["IBaseComponent", "IBaseComponentWithoutRequest"]
