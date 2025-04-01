@@ -6,9 +6,9 @@ from fastapi import Depends
 from ...common.models import StudentModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces.base_component import IBaseComponentWithoutRequest
 
-IGetStudents = IBaseComponent[None, "GetStudents.Response"]
+IGetStudents = IBaseComponentWithoutRequest["GetStudents.Response"]
 
 
 class GetStudents(IGetStudents):
