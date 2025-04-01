@@ -1,1 +1,6 @@
+pydantic-settings
 fastapi[standard]
+pymongo[srv]
+pytest-cov
+pytest
+pytest-asyncio
