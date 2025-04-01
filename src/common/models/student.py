@@ -1,9 +1,9 @@
 import pydantic as p
 
-from .base import BaseModel
+from .base import BaseModelWithId
 
 
-class StudentModel(BaseModel):
+class StudentModel(BaseModelWithId):
     name: str = p.Field(...)
     email: p.EmailStr = p.Field(...)
     course: str = p.Field(...)

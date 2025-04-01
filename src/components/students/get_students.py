@@ -19,7 +19,7 @@ class GetStudents(IGetStudents):
     class Response(p.BaseModel):
         students: list[StudentModel] = []
 
-    async def aexecute(self, _=None) -> "Response":
+    async def aexecute(self) -> "Response":
         self._logger.info("Fetching all students from the database.")
         cursor = self._collection.find({})
         students = [StudentModel(**student) for student in cursor]
