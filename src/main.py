@@ -1,32 +1,21 @@
-from typing import Union
-
-import pydantic as p
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
-from .routers import students
+from .exceptions import AppException
+from .routers import tests, users
 
 app = FastAPI()
 
 
-class Item(p.BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+@app.exception_handler(AppException)
+def custom_exception_handler(request, exc: AppException) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error_message": exc.error_message},
+    )
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app.include_router(users.router)
 
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_id": item_id, "item": item_id}
-
-
-app.include_router(students.router)
+# NOTE: for testing purpose only
+app.include_router(tests.router)
