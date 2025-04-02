@@ -16,35 +16,35 @@ class MockSetup(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class TestGetStudents:
-    def setup_mocks(self) -> MockSetup:
-        mock_db = MagicMock()
-        mock_logger = MagicMock()
-        mock_collection = AsyncMock()
-        mock_db.configure_mock(get_collection=Mock(return_value=mock_collection))
-        return MockSetup(db=mock_db, logger=mock_logger, collection=mock_collection)
+@pytest.fixture
+def mock_setup() -> MockSetup:
+    mock_db = MagicMock()
+    mock_logger = MagicMock()
+    mock_collection = AsyncMock()
+    mock_db.configure_mock(get_collection=Mock(return_value=mock_collection))
+    return MockSetup(db=mock_db, logger=mock_logger, collection=mock_collection)
 
+
+class TestGetStudents:
     def verify_interactions(self, mock_logger, mock_db, mock_collection) -> None:
         mock_logger.info.assert_called_once_with("Fetching all students from the database.")
         mock_db.get_collection.assert_called_once_with(CollectionName.STUDENTS)
         mock_collection.find.assert_called_once_with({})
 
     @pytest.mark.asyncio
-    async def test_aexecute(self) -> None:
+    async def test_aexecute(self, mock_setup: MockSetup) -> None:
         # Setup mocks
-        mocks = self.setup_mocks()
+        mocks = mock_setup
 
         # Mock database response
         students = [
             StudentModel(
-                _id="1",
                 name="John Doe",
                 email="johndoe@gmail.com",
                 course="Math",
                 gpa=3.5,
             ),
             StudentModel(
-                _id="2",
                 name="David",
                 email="david@gmail.com",
                 course="Science",
@@ -74,9 +74,9 @@ class TestGetStudents:
         self.verify_interactions(mocks.logger, mocks.db, mocks.collection)
 
     @pytest.mark.asyncio
-    async def test_aexecute_no_students(self) -> None:
+    async def test_aexecute_no_students(self, mock_setup: MockSetup) -> None:
         # Setup mocks
-        mocks = self.setup_mocks()
+        mocks = mock_setup
 
         # Mock database response with no students
         mocks.collection.configure_mock(find=Mock(return_value=[]))
