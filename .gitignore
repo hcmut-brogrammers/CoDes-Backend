@@ -1,5 +1,5 @@
 # virtual environment
+.env
 .venv/
-
-# pycache
-__pycache__/
+__pycache__
+node_modules
