@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
+from ...constants.router import ApiPath
 from . import students
 
 router = APIRouter(
-    prefix="/tests",
+    prefix=ApiPath.TESTS,
     tags=["tests"],
 )
 

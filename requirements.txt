@@ -6,3 +6,5 @@ pytest
 pytest-asyncio
 black
 isort
+pyjwt
+passlib[bcrypt]

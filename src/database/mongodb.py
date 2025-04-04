@@ -16,7 +16,10 @@ DATABASE_NAME = "database"
 
 def create_mongodb_database(logger: LoggerDep) -> Database:
     try:
-        codec_options: CodecOptions = CodecOptions(uuid_representation=UuidRepresentation.STANDARD)
+        codec_options: CodecOptions = CodecOptions(
+            uuid_representation=UuidRepresentation.STANDARD,  # use standard UUID representation
+            tz_aware=True,  # configure timezone-aware datetime objects
+        )
         client: MongoClient = MongoClient(settings.MONGO_URI, server_api=ServerApi("1"))
         client.admin.command("ping")
         logger.info("Connected successfully to MongoDB")
