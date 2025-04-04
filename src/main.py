@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 
 from .exceptions import AppException
-from .routers import tests, users
+from .middlewares.authenticate_middleware import AuthenticateMiddleware
+from .routers import authenticate, tests, users
+from .services.jwt_service import JwtService
 
-app = FastAPI()
+app = FastAPI(dependencies=[Depends(JwtService)])
 
 
 @app.exception_handler(AppException)
@@ -14,6 +16,10 @@ def custom_exception_handler(request, exc: AppException) -> JSONResponse:
         content={"error_message": exc.error_message},
     )
 
+
+app.add_middleware(AuthenticateMiddleware)
+
+app.include_router(authenticate.router)
 
 app.include_router(users.router)
 

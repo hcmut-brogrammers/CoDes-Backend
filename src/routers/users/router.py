@@ -3,9 +3,10 @@ from uuid import UUID
 from fastapi import APIRouter, status
 
 from ...components.users import CreateUserDep, DeleteUserByIdDep, GetUserByIdDep, UpdateUserDep
+from ...constants.router import ApiPath
 
 router = APIRouter(
-    prefix="/users",
+    prefix=ApiPath.USERS,
     tags=["users"],
 )
 

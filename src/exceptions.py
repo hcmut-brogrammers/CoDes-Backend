@@ -20,3 +20,8 @@ class NotFoundError(AppException):
 class BadRequestError(AppException):
     def __init__(self, error_message: str) -> None:
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, error_message=error_message)
+
+
+class UnauthorizedError(AppException):
+    def __init__(self, error_message: str) -> None:
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, error_message=error_message)
