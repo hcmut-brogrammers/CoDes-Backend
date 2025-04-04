@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class CollectionName:
     STUDENTS: str = "students"
     USERS: str = "users"
+    REFRESH_TOKENS: str = "refresh_tokens"

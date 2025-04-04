@@ -1,0 +1,139 @@
+from unittest.mock import AsyncMock, Mock
+from uuid import UUID
+
+import pytest
+
+from ....common.models import UserModel, UserRole
+from ....components.authenticate.authenticate_user import AuthenticateUser
+from ....components.authenticate.create_refresh_token import CreateRefreshToken
+from ....components.users import GetUserByEmail
+from ....exceptions import BadRequestError
+from ....services.jwt_service import TokenData
+
+MockSetUp = tuple[Mock, Mock, Mock, Mock, Mock]
+
+
+@pytest.fixture
+def mocks() -> MockSetUp:
+    mock_get_user_by_email = Mock()
+    mock_jwt_service = Mock()
+    mock_create_refresh_token = Mock()
+    mock_db = Mock()
+    mock_logger = Mock()
+    return mock_get_user_by_email, mock_jwt_service, mock_create_refresh_token, mock_db, mock_logger
+
+
+class TestAuthenticateUser:
+    @pytest.mark.asyncio
+    async def test_aexecute_success(self, mocks: MockSetUp) -> None:
+        mock_get_user_by_email, mock_jwt_service, mock_create_refresh_token, mock_db, mock_logger = mocks
+
+        mock_user = UserModel(
+            email="johndoe@gmail.com",
+            username="johndoe",
+            hashed_password="hashed_password",
+            role=UserRole.OrganizationMember,
+        )
+        mock_get_user_by_email.configure_mock(aexecute=AsyncMock(return_value=GetUserByEmail.Response(user=mock_user)))
+
+        mock_access_token = "access_token"
+        mock_refresh_token_id = UUID("12345678-1234-5678-1234-567812345678")
+        mock_user_token_data = TokenData(
+            user_id=mock_user.id,
+            username=mock_user.username,
+            email=mock_user.email,
+            role=mock_user.role,
+            sub=mock_user.email,
+            exp=0,
+        )
+        mock_jwt_service.configure_mock(
+            verify_password=Mock(return_value=True),
+            create_user_token_data=Mock(return_value=mock_user_token_data),
+            encode_jwt_token=Mock(return_value=mock_access_token),
+        )
+        mock_create_refresh_token.configure_mock(
+            aexecute=AsyncMock(return_value=CreateRefreshToken.Response(refresh_token_id=mock_refresh_token_id))
+        )
+
+        authenticate_user = AuthenticateUser(
+            get_user_by_email=mock_get_user_by_email,
+            jwt_service=mock_jwt_service,
+            create_refresh_token=mock_create_refresh_token,
+            db=mock_db,
+            logger=mock_logger,
+        )
+
+        authenticate_request = AuthenticateUser.Request(email=mock_user.email, password="password")
+        authenticate_response = await authenticate_user.aexecute(authenticate_request)
+
+        assert authenticate_response is not None
+        assert authenticate_response.access_token == mock_access_token
+        assert authenticate_response.refresh_token_id == mock_refresh_token_id
+
+        mock_get_user_by_email.aexecute.assert_called_once_with(
+            GetUserByEmail.Request(email=authenticate_request.email)
+        )
+        mock_jwt_service.verify_password.assert_called_once_with("password", "hashed_password")
+        mock_jwt_service.create_user_token_data.assert_called_once_with(mock_user)
+        mock_jwt_service.encode_jwt_token.assert_called_once_with(mock_user_token_data)
+        mock_create_refresh_token.aexecute.assert_called_once_with(
+            CreateRefreshToken.Request(access_token=mock_access_token)
+        )
+
+    @pytest.mark.asyncio
+    async def test_aexecute_user_not_found(self, mocks: MockSetUp) -> None:
+        mock_get_user_by_email, mock_jwt_service, mock_create_refresh_token, mock_db, mock_logger = mocks
+
+        mock_get_user_by_email.configure_mock(aexecute=AsyncMock(return_value=GetUserByEmail.Response(user=None)))
+
+        authenticate_user = AuthenticateUser(
+            get_user_by_email=mock_get_user_by_email,
+            jwt_service=mock_jwt_service,
+            create_refresh_token=mock_create_refresh_token,
+            db=mock_db,
+            logger=mock_logger,
+        )
+
+        authenticate_request = AuthenticateUser.Request(email="nonexistent@gmail.com", password="password")
+
+        with pytest.raises(BadRequestError, match="User with email nonexistent@gmail.com not found."):
+            await authenticate_user.aexecute(authenticate_request)
+
+        mock_get_user_by_email.aexecute.assert_called_once_with(
+            GetUserByEmail.Request(email=authenticate_request.email)
+        )
+        mock_jwt_service.encode_jwt_token.assert_not_called()
+        mock_create_refresh_token.aexecute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_aexecute_incorrect_password(self, mocks: MockSetUp) -> None:
+        mock_get_user_by_email, mock_jwt_service, mock_create_refresh_token, mock_db, mock_logger = mocks
+
+        mock_user = UserModel(
+            email="johndoe@gmail.com",
+            username="johndoe",
+            hashed_password="hashed_password",
+            role=UserRole.OrganizationMember,
+        )
+        mock_get_user_by_email.configure_mock(aexecute=AsyncMock(return_value=GetUserByEmail.Response(user=mock_user)))
+        mock_jwt_service.configure_mock(verify_password=Mock(return_value=False))
+
+        authenticate_user = AuthenticateUser(
+            get_user_by_email=mock_get_user_by_email,
+            jwt_service=mock_jwt_service,
+            create_refresh_token=mock_create_refresh_token,
+            db=mock_db,
+            logger=mock_logger,
+        )
+
+        authenticate_request = AuthenticateUser.Request(email=mock_user.email, password="wrong_password")
+
+        with pytest.raises(BadRequestError, match="Password for user johndoe@gmail.com is incorrect."):
+            await authenticate_user.aexecute(authenticate_request)
+
+        mock_get_user_by_email.aexecute.assert_called_once_with(
+            GetUserByEmail.Request(email=authenticate_request.email)
+        )
+        mock_jwt_service.verify_password.assert_called_once_with("wrong_password", "hashed_password")
+        mock_jwt_service.encode_jwt_token.assert_not_called()
+        mock_create_refresh_token.aexecute.assert_not_called()

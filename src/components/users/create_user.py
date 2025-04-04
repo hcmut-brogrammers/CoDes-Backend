@@ -29,7 +29,9 @@ class CreateUser(ICreateUser):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        user = UserModel(**request.model_dump(by_alias=True))
+        user = UserModel(
+            username=request.username, hashed_password=request.hashed_password, email=request.email, role=request.role
+        )
         user_data = user.model_dump(by_alias=True)
         inserted_user = self._collection.insert_one(user_data)
         created_user = self._collection.find_one({"_id": inserted_user.inserted_id})
