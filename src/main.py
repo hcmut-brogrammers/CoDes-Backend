@@ -1,32 +1,27 @@
-from typing import Union
+from fastapi import Depends, FastAPI
+from fastapi.responses import JSONResponse
 
-import pydantic as p
-from fastapi import FastAPI
+from .exceptions import AppException
+from .middlewares.authenticate_middleware import AuthenticateMiddleware
+from .routers import authenticate, tests, users
+from .services.jwt_service import JwtService
 
-from .routers import students
-
-app = FastAPI()
-
-
-class Item(p.BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+app = FastAPI(dependencies=[Depends(JwtService)])
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.exception_handler(AppException)
+def custom_exception_handler(request, exc: AppException) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error_message": exc.error_message},
+    )
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+app.add_middleware(AuthenticateMiddleware)
 
+app.include_router(authenticate.router)
 
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_id": item_id, "item": item_id}
+app.include_router(users.router)
 
-
-app.include_router(students.router)
+# NOTE: for testing purpose only
+app.include_router(tests.router)

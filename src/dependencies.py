@@ -1,9 +1,11 @@
-from .config import SettingsDep
+from .config import SettingsDep, create_settings
 from .database.mongodb import MongoDbDep
-from .logger import LoggerDep
+from .logger import LoggerDep, create_logger
 
 __all__ = [
     "MongoDbDep",
     "LoggerDep",
     "SettingsDep",
+    "create_settings",
+    "create_logger",
 ]
