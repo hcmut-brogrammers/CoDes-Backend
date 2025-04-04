@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from ...components.students import CreateStudentDep, GetStudentsDep
+from ....components.students import CreateStudentDep, GetStudentsDep
 
 router = APIRouter(
     prefix="/students",
