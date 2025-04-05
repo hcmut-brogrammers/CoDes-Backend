@@ -1,6 +1,6 @@
 import typing as t
 
-from fastapi import Depends, Request
+from fastapi import Request, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp
@@ -37,21 +37,30 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
         # TODO: refactor JSONResponse with exception if possible
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
-            return JSONResponse(status_code=401, content={"error_message": "Missing or invalid Authorization header"})
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"error_message": "Missing or invalid Authorization header."},
+            )
 
         auth_splits = auth_header.split(" ")
         if len(auth_splits) != 2:
-            return JSONResponse(status_code=401, content={"error_message": "Invalid Authorization header format"})
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"error_message": "Invalid Authorization header format."},
+            )
 
         bearer_token = auth_splits[1].strip()
         if not bearer_token:
-            return JSONResponse(status_code=401, content={"error_message": "Missing token in Authorization header"})
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"error_message": "Missing token in Authorization header."},
+            )
 
         try:
             token_data = self._jwt_service.decode_jwt_token(bearer_token)
             self._add_token_data_to_request_context(request, token_data)
         except ValueError as e:
-            return JSONResponse(status_code=401, content={"error_message": str(e)})
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error_message": str(e)})
 
         return await call_next(request)
 
