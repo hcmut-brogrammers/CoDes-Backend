@@ -33,13 +33,18 @@ class JwtService:
             )
             validated_token_data = TokenData.model_validate(payload)
             return validated_token_data
-        except jwt.PyJWTError as e:
-            self._logger.error(f"Error while decoding jwt token: {e}")
-            raise ValueError("Error while decoing jwt token") from e
+        except jwt.ExpiredSignatureError as e:
+            self._logger.error(f"JWT token has expired.")
+            raise ValueError("JWT token has expired.") from e
         except p.ValidationError as e:
-            raise ValueError("Invalid jwt token payload") from e
+            self._logger.error(f"Invalid JWT token payload.")
+            raise ValueError("Invalid JWT token payload.") from e
+        except jwt.PyJWTError as e:
+            self._logger.error(f"Error while decoding JWT token: {e}.")
+            raise ValueError("Error while decoing JWT token.") from e
         except Exception as e:
-            raise ValueError("Invalid token") from e
+            self._logger.error(f"Invalid JWT token: {e}.")
+            raise ValueError("Invalid JWT token.") from e
 
     def hash(self, password: str) -> str:
         return pwd_context.hash(password)
