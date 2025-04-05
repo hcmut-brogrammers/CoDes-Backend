@@ -8,6 +8,7 @@ from starlette.types import ASGIApp
 from ..common.auth import TokenData
 from ..config import create_settings
 from ..constants.router import ApiPath
+from ..exceptions import ErrorContent, ErrorJSONResponse, ErrorType
 from ..logger import create_logger
 from ..services.jwt_service import JwtService
 
@@ -34,33 +35,47 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
         if request.url.path.startswith(ApiPath.TESTS):
             return await call_next(request)
 
-        # TODO: refactor JSONResponse with exception if possible
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
-            return JSONResponse(
+            return ErrorJSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"error_message": "Missing or invalid Authorization header."},
+                error_content=ErrorContent(
+                    error_type=ErrorType.AUTHENTICATION,
+                    error_message="Missing or invalid Authorization header.",
+                ),
             )
 
         auth_splits = auth_header.split(" ")
         if len(auth_splits) != 2:
-            return JSONResponse(
+            return ErrorJSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"error_message": "Invalid Authorization header format."},
+                error_content=ErrorContent(
+                    error_type=ErrorType.AUTHENTICATION,
+                    error_message="Invalid Authorization header format.",
+                ),
             )
 
         bearer_token = auth_splits[1].strip()
         if not bearer_token:
-            return JSONResponse(
+            return ErrorJSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"error_message": "Missing token in Authorization header."},
+                error_content=ErrorContent(
+                    error_type=ErrorType.AUTHENTICATION,
+                    error_message="Missing token in Authorization header.",
+                ),
             )
 
         try:
             token_data = self._jwt_service.decode_jwt_token(bearer_token)
             self._add_token_data_to_request_context(request, token_data)
         except ValueError as e:
-            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error_message": str(e)})
+            return ErrorJSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                error_content=ErrorContent(
+                    error_type=ErrorType.AUTHENTICATION,
+                    error_message=str(e),
+                ),
+            )
 
         return await call_next(request)
 
