@@ -1,12 +1,14 @@
-from typing import Callable
+import typing as t
 
-from fastapi import Request
+from fastapi import Depends, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp
 
+from ..common.auth import TokenData
+from ..config import create_settings
 from ..constants.router import ApiPath
-from ..dependencies import create_logger, create_settings
+from ..logger import create_logger
 from ..services.jwt_service import JwtService
 
 
@@ -22,7 +24,7 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
             logger=create_logger(),
         )
 
-    async def dispatch(self, request: Request, call_next: Callable) -> JSONResponse:
+    async def dispatch(self, request: Request, call_next: t.Callable) -> JSONResponse:
         # Skip authentication for the authentication endpoint
         if request.url.path.startswith(ApiPath.AUTHENTICATE):
             return await call_next(request)
@@ -47,7 +49,12 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
 
         try:
             token_data = self._jwt_service.decode_jwt_token(bearer_token)
+            self._add_token_data_to_request_context(request, token_data)
         except ValueError as e:
             return JSONResponse(status_code=401, content={"error_message": str(e)})
 
         return await call_next(request)
+
+    def _add_token_data_to_request_context(self, request: Request, token_data: TokenData) -> None:
+        if not hasattr(request.state, "token_data"):
+            request.state.token_data = token_data

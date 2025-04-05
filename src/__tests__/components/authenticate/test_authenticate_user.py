@@ -3,12 +3,12 @@ from uuid import UUID
 
 import pytest
 
+from ....common.auth import TokenData
 from ....common.models import UserModel, UserRole
 from ....components.authenticate.authenticate_user import AuthenticateUser
 from ....components.authenticate.create_refresh_token import CreateRefreshToken
 from ....components.users import GetUserByEmail
 from ....exceptions import BadRequestError
-from ....services.jwt_service import TokenData
 
 MockSetUp = tuple[Mock, Mock, Mock, Mock, Mock]
 

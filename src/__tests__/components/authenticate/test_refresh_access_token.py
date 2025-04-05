@@ -4,11 +4,11 @@ from uuid import uuid4
 
 import pytest
 
+from ....common.auth import TokenData
 from ....common.models import UserRole
 from ....components.authenticate.create_refresh_token import CreateRefreshToken
 from ....components.authenticate.refresh_access_token import RefreshAccessToken
 from ....exceptions import BadRequestError
-from ....services.jwt_service import TokenData
 from ...utils.common import get_utc_now
 
 MockSetUp = tuple[Mock, Mock, Mock, Mock]
@@ -77,7 +77,7 @@ class TestRefreshAccessToken:
         assert response.access_token == mock_new_access_token
         assert response.refresh_token_id == mock_new_refresh_token_id
 
-        mock_jwt_service.decode_jwt_token.assert_called_once_with(mock_access_token)
+        mock_jwt_service.decode_jwt_token.assert_called_once_with(mock_access_token, verify_exp=False)
         mock_collection.find_one.assert_called_once_with(
             {"_id": mock_refresh_token_id}  # Fixed query to match refresh token ID
         )
@@ -87,7 +87,7 @@ class TestRefreshAccessToken:
     async def test_aexecute_invalid_access_token(self, mocks: MockSetUp) -> None:
         mock_jwt_service, mock_create_refresh_token, mock_db, mock_logger = mocks
 
-        mock_jwt_service.configure_mock(decode_jwt_token=Mock(side_effect=ValueError("Invalid access token")))
+        mock_jwt_service.configure_mock(decode_jwt_token=Mock(side_effect=ValueError()))
 
         refresh_access_token = RefreshAccessToken(
             jwt_service=mock_jwt_service,
@@ -98,7 +98,7 @@ class TestRefreshAccessToken:
 
         request = RefreshAccessToken.Request(access_token="invalid_token", refresh_token_id=uuid4())
 
-        with pytest.raises(BadRequestError, match="Invalid access token"):
+        with pytest.raises(BadRequestError, match="Failed to decode access token."):
             await refresh_access_token.aexecute(request)
 
-        mock_jwt_service.decode_jwt_token.assert_called_once_with("invalid_token")
+        mock_jwt_service.decode_jwt_token.assert_called_once_with("invalid_token", verify_exp=False)
