@@ -1,13 +1,13 @@
 import typing as t
 from datetime import datetime, timedelta
-from uuid import UUID
 
 import jwt
 import pydantic as p
 from fastapi import Depends
 from passlib.context import CryptContext
 
-from ..common.models import UserModel, UserRole
+from ..common.auth import TokenData
+from ..common.models import UserModel
 from ..dependencies import LoggerDep, SettingsDep
 from ..utils.common import get_utc_now
 
@@ -15,15 +15,6 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 8
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-class TokenData(p.BaseModel):
-    user_id: UUID
-    username: str
-    email: str
-    role: UserRole
-    sub: str
-    exp: int
 
 
 class JwtService:
@@ -35,16 +26,18 @@ class JwtService:
         jwt_token = jwt.encode(token_data.model_dump(mode="json"), self._settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
         return jwt_token
 
-    def decode_jwt_token(self, token: str) -> TokenData:
+    def decode_jwt_token(self, token: str, verify_exp: bool = True) -> TokenData:
         try:
-            payload = jwt.decode(token, self._settings.JWT_SECRET_KEY, algorithms=ALGORITHM)
+            payload = jwt.decode(
+                token, self._settings.JWT_SECRET_KEY, algorithms=ALGORITHM, options={"verify_exp": verify_exp}
+            )
             validated_token_data = TokenData.model_validate(payload)
             return validated_token_data
         except jwt.PyJWTError as e:
-            self._logger.error(f"Error decoding JWT token: {e}")
-            raise ValueError("Cannot parse access token") from e
+            self._logger.error(f"Error while decoding jwt token: {e}")
+            raise ValueError("Error while decoing jwt token") from e
         except p.ValidationError as e:
-            raise ValueError("Invalid token payload") from e
+            raise ValueError("Invalid jwt token payload") from e
         except Exception as e:
             raise ValueError("Invalid token") from e
 
