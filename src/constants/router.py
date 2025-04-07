@@ -14,5 +14,5 @@ class ApiPath:
     REFRESH_ACCESS_TOKEN = "/refresh-access-token"
 
     USERS = "/users"
-
+    ORGANIZATIONS = "/organizations"
     TESTS = "/tests"
