@@ -1,5 +1,6 @@
 import typing as t
 
+import certifi
 from bson.binary import UuidRepresentation
 from bson.codec_options import CodecOptions
 from fastapi import Depends
@@ -20,7 +21,7 @@ def create_mongodb_database(logger: LoggerDep) -> Database:
             uuid_representation=UuidRepresentation.STANDARD,  # use standard UUID representation
             tz_aware=True,  # configure timezone-aware datetime objects
         )
-        client: MongoClient = MongoClient(settings.MONGO_URI, server_api=ServerApi("1"))
+        client: MongoClient = MongoClient(settings.MONGO_URI, server_api=ServerApi("1"), tlsCAFile=certifi.where())
         client.admin.command("ping")
         logger.info("Connected successfully to MongoDB")
         database = client.get_database(DATABASE_NAME, codec_options=codec_options)
