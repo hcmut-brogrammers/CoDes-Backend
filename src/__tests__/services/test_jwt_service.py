@@ -68,7 +68,7 @@ def test_decode_jwt_token_with_expired_jwt_token_throws_exception(
     jwt_service: JwtService, expired_token_data: TokenData
 ) -> None:
     token = jwt_service.encode_jwt_token(expired_token_data)
-    with pytest.raises(ValueError, match="Error while decoing jwt token"):
+    with pytest.raises(ValueError, match="JWT token has expired."):
         jwt_service.decode_jwt_token(token)
 
 
@@ -80,9 +80,9 @@ def test_decode_jwt_token_with_bypass_expired_jwt_token_success(
     validate_decoded_token_data(decoded_token_data, expired_token_data)
 
 
-def test_decode_jwt_token_invalid_throws_exception(jwt_service: JwtService) -> None:
+def test_decode_jwt_token_with_invalid_token_throws_exception(jwt_service: JwtService) -> None:
     invalid_token = "invalid.token.value"
-    with pytest.raises(ValueError, match="Error while decoing jwt token"):
+    with pytest.raises(ValueError, match="Error while decoing JWT token."):
         jwt_service.decode_jwt_token(invalid_token)
 
 
