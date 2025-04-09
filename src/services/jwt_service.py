@@ -34,10 +34,10 @@ class JwtService:
             validated_token_data = TokenData.model_validate(payload)
             return validated_token_data
         except jwt.ExpiredSignatureError as e:
-            self._logger.error(f"JWT token has expired.")
+            self._logger.error("JWT token has expired.")
             raise ValueError("JWT token has expired.") from e
         except p.ValidationError as e:
-            self._logger.error(f"Invalid JWT token payload.")
+            self._logger.error("Invalid JWT token payload.")
             raise ValueError("Invalid JWT token payload.") from e
         except jwt.PyJWTError as e:
             self._logger.error(f"Error while decoding JWT token: {e}.")
