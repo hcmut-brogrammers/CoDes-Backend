@@ -68,7 +68,8 @@ class TestCreateUser:
         )
         mock_inserted_id = uuid4()  # Use uuid4 to generate a valid UUID object
         mock_collection.configure_mock(
-            insert_one=Mock(return_value=Mock(inserted_id=mock_inserted_id)),
+            # insert_one=Mock(return_value=Mock(inserted_id=mock_inserted_id)),
+            insert_one=Mock(return_value=Mock(inserted_id=user.id)),
             find_one=Mock(return_value=None),
         )
 
@@ -82,4 +83,4 @@ class TestCreateUser:
 
         # Verify interactions
         mock_collection.insert_one.assert_called_once()
-        mock_collection.find_one.assert_called_once_with({"_id": mock_inserted_id})
+        mock_collection.find_one.assert_called_once_with({"_id": user.id})

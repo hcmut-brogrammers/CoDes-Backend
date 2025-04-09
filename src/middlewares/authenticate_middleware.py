@@ -26,6 +26,10 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
         )
 
     async def dispatch(self, request: Request, call_next: t.Callable) -> JSONResponse:
+        # Skip authentication for Swagger and ReDoc endpoints
+        if request.url.path.startswith("/docs"):
+            return await call_next(request)
+
         # Skip authentication for the authentication endpoint
         if request.url.path.startswith(ApiPath.AUTHENTICATE):
             return await call_next(request)
