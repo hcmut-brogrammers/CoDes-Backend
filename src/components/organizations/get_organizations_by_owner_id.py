@@ -11,10 +11,10 @@ from ...exceptions import NotFoundError
 from ...interfaces.base_component import IBaseComponent, IBaseComponentWithoutRequest
 from ...utils.logger import execute_service_method
 
-IGetOrganizationByOwnerId = IBaseComponentWithoutRequest["GetOrganizationByOwnerId.Response"]
+IGetOrganizationsByOwnerId = IBaseComponentWithoutRequest["GetOrganizationsByOwnerId.Response"]
 
 
-class GetOrganizationByOwnerId(IGetOrganizationByOwnerId):
+class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
     def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
         self._collection = db.get_collection(CollectionName.ORGANIZATIONS)
         self._logger = logger
@@ -36,4 +36,4 @@ class GetOrganizationByOwnerId(IGetOrganizationByOwnerId):
         return self.Response(organizations=organizations)
 
 
-GetOrganizationByOwnerIdDep = t.Annotated[GetOrganizationByOwnerId, Depends()]
+GetOrganizationByOwnerIdDep = t.Annotated[GetOrganizationsByOwnerId, Depends()]

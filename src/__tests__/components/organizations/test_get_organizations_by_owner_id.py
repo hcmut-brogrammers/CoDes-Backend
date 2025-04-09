@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from ....components.organizations.get_list_organizations_by_owner_id import GetOrganizationByOwnerId
+from ....components.organizations.get_organizations_by_owner_id import GetOrganizationsByOwnerId
 from ....exceptions import NotFoundError
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
@@ -23,14 +23,11 @@ def mock_setup() -> MockSetUp:
 class TestGetOrganizationByOwnerId:
     @pytest.mark.asyncio
     async def test_aexecute_success(self, mock_setup: MockSetUp) -> None:
-        # Setup mocks
         mock_db, mock_logger, mock_user_context, mock_collection = mock_setup
 
-        # Mock user_context
         user_id = uuid4()
         mock_user_context.configure_mock(user_id=user_id)
 
-        # Mock request and database response
         organization_data = [
             {
                 "name": "org_test_1",
@@ -50,17 +47,12 @@ class TestGetOrganizationByOwnerId:
         ]
         mock_collection.configure_mock(find=Mock(return_value=organization_data))
 
-        # Initialize the component
-        get_organization_by_id = GetOrganizationByOwnerId(
+        get_organization_by_id = GetOrganizationsByOwnerId(
             db=mock_db, logger=mock_logger, user_context=mock_user_context
         )
 
-        # Execute the component
-        # request = GetOrganizationByOwnerId.Request(organization_id=organization_id)
         response = await get_organization_by_id.aexecute()
 
-        # Assertions
-        # assert response.organizations is not None ## có thể trả về list rỗng?
         assert len(response.organizations) == len(organization_data)
         for org, org_data in zip(response.organizations, organization_data):
             assert org.name == org_data["name"]
@@ -71,23 +63,17 @@ class TestGetOrganizationByOwnerId:
 
     @pytest.mark.asyncio
     async def test_aexecute_when_organization_not_found_throws_not_found_error(self, mock_setup: MockSetUp) -> None:
-        # Setup mocks
         mock_db, mock_logger, mock_user_context, mock_collection = mock_setup
 
-        # Mock user_context
-        user_id = uuid4()  # Use uuid4 to generate a valid UUID object
+        user_id = uuid4()
         mock_user_context.configure_mock(user_id=user_id)
         mock_collection.configure_mock(find=Mock(return_value=None))
 
-        # Initialize the component
-        get_organization_by_id = GetOrganizationByOwnerId(
+        get_organization_by_id = GetOrganizationsByOwnerId(
             db=mock_db, logger=mock_logger, user_context=mock_user_context
         )
 
-        # Execute the component
-        # request = GetUserById.Request(organizatio÷n_id=organization_id)
         with pytest.raises(NotFoundError):
             await get_organization_by_id.aexecute()
 
-        # Verify interactions
         mock_collection.find.assert_called_once_with({"owner_id": user_id})

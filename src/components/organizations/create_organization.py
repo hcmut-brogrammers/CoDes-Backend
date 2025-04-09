@@ -24,7 +24,6 @@ class CreateOrganization(ICreateOrganization):
     class Request(p.BaseModel):
         name: str
         avatar_url: str | None = None
-        # owner_id: str
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
@@ -36,8 +35,6 @@ class CreateOrganization(ICreateOrganization):
         organization = OrganizationModel(
             name=request.name,
             avatar_url=request.avatar_url,
-            # hash owner_id
-            # có cần check owner_id có tồn tại trong database hay không
             owner_id=self._user_context.user_id,
         )
         organization_data = organization.model_dump(by_alias=True)
