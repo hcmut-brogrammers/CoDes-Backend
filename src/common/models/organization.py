@@ -8,5 +8,5 @@ from .base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelet
 
 class OrganizationModel(BaseModelWithId, BaseModelWithDateTime, BaseModelWithSoftDelete):
     name: str = p.Field(alias="name")
-    avatar_url: Optional[str] = p.Field(default=None, alias="avatar_url")
+    avatar_url: str | None = p.Field(default=None, alias="avatar_url")
     owner_id: PyObjectUUID = p.Field(alias="owner_id")

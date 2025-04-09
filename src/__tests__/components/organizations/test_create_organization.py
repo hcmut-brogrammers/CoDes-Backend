@@ -45,14 +45,10 @@ class TestCreateOrganization:
         response = await create_organization.aexecute(request)
 
         assert response.created_organization is not None
-        assert response.created_organization.owner_id == user_id
+        assert response.created_organization.owner_id == mock_user_context.user_id
         assert response.created_organization.name == organization.name
         assert response.created_organization.avatar_url == organization.avatar_url
 
-        # print("here_is_organization_id: " + str(organization.id))
-        ## fail do 2 organization.id khác khau
-        ## organization ở expect và actual là 2 instances khác khau?
-        # mock_collection.insert_one.assert_called_once_with(organization.model_dump(by_alias=True))
         mock_collection.insert_one.assert_called_once()
         mock_collection.find_one.assert_called_once_with({"_id": organization.id})
 

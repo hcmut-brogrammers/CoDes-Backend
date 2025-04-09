@@ -57,7 +57,7 @@ class TestGetOrganizationByOwnerId:
         for org, org_data in zip(response.organizations, organization_data):
             assert org.name == org_data["name"]
             assert org.avatar_url == org_data["avatar_url"]
-            assert org.owner_id == user_id
+            assert org.owner_id == mock_user_context.user_id
 
         mock_collection.find.assert_called_once_with({"owner_id": user_id})
 
