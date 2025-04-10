@@ -26,6 +26,10 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
         )
 
     async def dispatch(self, request: Request, call_next: t.Callable) -> JSONResponse:
+        # Skip authentication for OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # # Skip authentication for Swagger docs and ReDoc endpoints
         if request.url.path.startswith(("/docs", "/redoc", "/openapi.json")):
             return await call_next(request)
