@@ -23,11 +23,14 @@ def mock_setup() -> MockSetUp:
 class TestGetOrganizationByOwnerId:
     @pytest.mark.asyncio
     async def test_aexecute_success(self, mock_setup: MockSetUp) -> None:
+        # Setup mocks
         mock_db, mock_logger, mock_user_context, mock_collection = mock_setup
 
+        # Mock user_context
         user_id = uuid4()
         mock_user_context.configure_mock(user_id=user_id)
 
+        # Mock database response
         organization_data = [
             {
                 "name": "org_test_1",
@@ -45,35 +48,45 @@ class TestGetOrganizationByOwnerId:
                 "owner_id": user_id,
             },
         ]
+
         mock_collection.configure_mock(find=Mock(return_value=organization_data))
 
+        # Initialize the component
         get_organization_by_id = GetOrganizationsByOwnerId(
             db=mock_db, logger=mock_logger, user_context=mock_user_context
         )
 
+        # Execute the component
         response = await get_organization_by_id.aexecute()
 
+        # Assertions
         assert len(response.organizations) == len(organization_data)
         for org, org_data in zip(response.organizations, organization_data):
             assert org.name == org_data["name"]
             assert org.avatar_url == org_data["avatar_url"]
             assert org.owner_id == mock_user_context.user_id
 
+        # Verify interactions
         mock_collection.find.assert_called_once_with({"owner_id": user_id})
 
     @pytest.mark.asyncio
     async def test_aexecute_when_organization_not_found_throws_not_found_error(self, mock_setup: MockSetUp) -> None:
+        # Setup mocks
         mock_db, mock_logger, mock_user_context, mock_collection = mock_setup
 
+        # Mock user_context
         user_id = uuid4()
         mock_user_context.configure_mock(user_id=user_id)
         mock_collection.configure_mock(find=Mock(return_value=None))
 
+        # Initialize the component
         get_organization_by_id = GetOrganizationsByOwnerId(
             db=mock_db, logger=mock_logger, user_context=mock_user_context
         )
 
+        # Execute the component with expected Error
         with pytest.raises(NotFoundError):
             await get_organization_by_id.aexecute()
 
+        # Verify interactions
         mock_collection.find.assert_called_once_with({"owner_id": user_id})
