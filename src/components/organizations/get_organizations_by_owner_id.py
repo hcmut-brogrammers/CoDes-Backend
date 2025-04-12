@@ -8,7 +8,7 @@ from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import NotFoundError
-from ...interfaces.base_component import IBaseComponent, IBaseComponentWithoutRequest
+from ...interfaces.base_component import IBaseComponentWithoutRequest
 from ...utils.logger import execute_service_method
 
 IGetOrganizationsByOwnerId = IBaseComponentWithoutRequest["GetOrganizationsByOwnerId.Response"]
@@ -27,9 +27,8 @@ class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
         self._logger.info(execute_service_method(self))
         filter = {"owner_id": self._user_context.user_id, "is_deleted": False}
         organizations_data = self._collection.find(filter)
-        # organizations_data = self._collection.find({})
+
         if not organizations_data:
-            # không log ra owner_id
             self._logger.error(f"Organization with owner_id {self._user_context.user_id} not found")
             raise NotFoundError(f"Organization with owner_id {self._user_context.user_id} not found")
 

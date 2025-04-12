@@ -4,8 +4,6 @@ import pydantic as p
 from fastapi import Depends
 from pymongo.cursor import Cursor
 
-from src.common.models.base import PyObjectUUID
-
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
@@ -24,7 +22,7 @@ class CreateOrganization(ICreateOrganization):
 
     class Request(p.BaseModel):
         name: str
-        avatar_url: str | None = None
+        avatar_url: p.HttpUrl | None = None
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
@@ -44,7 +42,7 @@ class CreateOrganization(ICreateOrganization):
         # process create organization
         organization = OrganizationModel(
             name=request.name,
-            avatar_url=request.avatar_url,
+            avatar_url=str(request.avatar_url),  # cast HttpUrl -> str
             owner_id=self._user_context.user_id,
             is_default=True if not data else False,
         )

@@ -2,7 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
-from ...components.organizations import CreateOrganizationDep, GetOrganizationByOwnerIdDep
+from ...components.organizations import (
+    CreateOrganizationDep,
+    DeleteOrganizationByIdDep,
+    GetOrganizationByOwnerIdDep,
+    UpdateOrganizationDep,
+)
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -31,3 +36,40 @@ async def get_organizations_by_owner_id(get_organizations_by_owner_id: GetOrgani
 )
 async def create_organization(create_organization: CreateOrganizationDep, request: CreateOrganizationDep.Request):
     return await create_organization.aexecute(request)
+
+
+@router.put(
+    "/{organization_id}",
+    response_model=UpdateOrganizationDep.Response,
+    response_description="Organization updated",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def update_organization(
+    updated_organization: UpdateOrganizationDep, organization_id: UUID, request: UpdateOrganizationDep.HttpRequest
+):
+    return await updated_organization.aexecute(
+        UpdateOrganizationDep.Request(organization_id=organization_id, **request.model_dump())
+    )
+
+
+@router.delete(
+    "/{organization_id}",
+    response_model=DeleteOrganizationByIdDep.Response,
+    response_description="Organization updated",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_organization(deleted_organization: DeleteOrganizationByIdDep, organization_id: UUID):
+    return await deleted_organization.aexecute(DeleteOrganizationByIdDep.Request(organization_id=organization_id))
+
+
+# @router.put(
+#     "/{user_id}",
+#     response_model=UpdateUserDep.Response,
+#     response_description="User updated",
+#     response_model_by_alias=False,
+#     status_code=status.HTTP_200_OK,
+# )
+# async def update_user(update_user: UpdateUserDep, user_id: UUID, request: UpdateUserDep.HttpRequest):
+#     return await update_user.aexecute(UpdateUserDep.Request(user_id=user_id, **request.model_dump()))

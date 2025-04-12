@@ -65,3 +65,8 @@ class ErrorJSONResponse(JSONResponse):
             status_code=status_code,
         )
         super().__init__(error_content_with_status_code.model_dump(), status_code, headers, media_type, background)
+
+
+class ForbiddenError(AppException):
+    def __init__(self, error_message: str) -> None:
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, error_message=error_message)
