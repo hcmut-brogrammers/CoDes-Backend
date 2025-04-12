@@ -7,6 +7,7 @@ from starlette.types import ASGIApp
 
 from ..common.auth import TokenData
 from ..config import create_settings
+from ..constants.request import HeaderKey, RequestMethod
 from ..constants.router import ApiPath
 from ..exceptions import ErrorContent, ErrorJSONResponse, ErrorType
 from ..logger import create_logger
@@ -25,21 +26,34 @@ class AuthenticateMiddleware(BaseHTTPMiddleware):
             logger=create_logger(),
         )
 
+    def _is_swagger_url_paths(self, url_path: str) -> bool:
+        return url_path.startswith(("/docs", "/redoc", "/openapi.json"))
+
+    def _is_authentication_url_path(self, url_path: str) -> bool:
+        return url_path.startswith(ApiPath.AUTHENTICATE)
+
+    def _is_test_url_path(self, url_path: str) -> bool:
+        return url_path.startswith(ApiPath.TESTS)
+
     async def dispatch(self, request: Request, call_next: t.Callable) -> JSONResponse:
-        # # Skip authentication for Swagger docs and ReDoc endpoints
-        if request.url.path.startswith(("/docs", "/redoc", "/openapi.json")):
+        url_path = request.url.path
+
+        # Skip authentication for OPTIONS requests (CORS preflight)
+        if request.method == RequestMethod.OPTIONS:
             return await call_next(request)
 
-        # Skip authentication for the authentication endpoint
-        if request.url.path.startswith(ApiPath.AUTHENTICATE):
+        if self._is_swagger_url_paths(url_path):
+            return await call_next(request)
+
+        if self._is_authentication_url_path(url_path):
             return await call_next(request)
 
         # NOTE: skip authentication for the tests endpoint
         # This is for testing purpose only
-        if request.url.path.startswith(ApiPath.TESTS):
+        if self._is_test_url_path(url_path):
             return await call_next(request)
 
-        auth_header = request.headers.get("Authorization")
+        auth_header = request.headers.get(HeaderKey.AUTHORIZATION)
         if not auth_header or not auth_header.startswith("Bearer "):
             return ErrorJSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
