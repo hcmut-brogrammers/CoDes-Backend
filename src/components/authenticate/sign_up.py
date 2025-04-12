@@ -35,9 +35,8 @@ class SignUp(ISignUp):
         self._logger = logger
 
     class Request(p.BaseModel):
-        # email: str
         email: p.EmailStr
-        password: p.constr(min_length=8)
+        password: str = p.Field(min_length=8)
         username: str
         role: UserRole
 
