@@ -29,8 +29,9 @@ class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
         organizations_data = self._collection.find(filter)
 
         if not organizations_data:
-            self._logger.error(f"Organization with owner_id {self._user_context.user_id} not found")
-            raise NotFoundError(f"Organization with owner_id {self._user_context.user_id} not found")
+            error_message = f"Organization with owner_id {self._user_context.user_id} not found."
+            self._logger.error(error_message)
+            raise NotFoundError(error_message)
 
         organizations = [OrganizationModel(**organization) for organization in organizations_data]
         return self.Response(organizations=organizations)

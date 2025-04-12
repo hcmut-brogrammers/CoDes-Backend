@@ -21,11 +21,7 @@ class DeleteOrganizationById(IDeleteOrganizationById):
         self._logger = logger
         self._user_context = user_context
 
-    class HttpRequest(p.BaseModel):
-        name: str | None = None
-        avatar_url: str | None = None
-
-    class Request(HttpRequest, p.BaseModel):
+    class Request(p.BaseModel):
         organization_id: UUID
 
     class Response(p.BaseModel):
@@ -33,33 +29,38 @@ class DeleteOrganizationById(IDeleteOrganizationById):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        self._logger.info(self._user_context)
 
         # before delete condition check
+        organization_id = request.organization_id
+
         filter = {
-            "_id": request.organization_id,
+            "_id": organization_id,
             "owner_id": self._user_context.user_id,
             "is_deleted": False,
         }
-        current_organization = self._collection.find_one(filter)
+        organization_data = self._collection.find_one(filter)
 
-        if current_organization is None:
-            self._logger.error(f"Organization with id {request.organization_id} not found")
-            raise NotFoundError(f"Organization with id {request.organization_id} not found")
+        if organization_data is None:
+            error_message = f"Organization with id {organization_id} not found."
+            self._logger.error(error_message)
+            raise NotFoundError(error_message)
 
-        elif current_organization["is_default"] is True:
-            self._logger.error(f"Organization with id {request.organization_id} is a default one")
-            raise BadRequestError(f"Organization with id {request.organization_id} is a default one")
+        organization = OrganizationModel(**organization_data)
 
-        deleted_time = get_utc_now()
-        delete_data = {"is_deleted": True, "deleted_at": deleted_time}
+        if organization.is_default is True:
+            error_message = (
+                f"Organization with id {organization_id} is a default one. The default organization cannot be deleted."
+            )
+            self._logger.error(error_message)
+            raise BadRequestError(error_message)
 
-        deleted_organization = OrganizationModel(**current_organization).model_copy(update=delete_data)
+        organization.is_deleted = True
+        organization.deleted_at = get_utc_now()
 
         self._collection.update_one(
-            {"_id": deleted_organization.id}, {"$set": deleted_organization.model_dump(exclude={"id", "is_default"})}
+            {"_id": organization.id}, {"$set": organization.model_dump(exclude={"id", "is_default"})}
         )
-        return self.Response(deleted_organization=deleted_organization)
+        return self.Response(deleted_organization=organization)
 
 
 DeleteOrganizationByIdDep = t.Annotated[DeleteOrganizationById, Depends()]

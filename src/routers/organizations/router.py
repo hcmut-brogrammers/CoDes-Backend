@@ -46,9 +46,9 @@ async def create_organization(create_organization: CreateOrganizationDep, reques
     status_code=status.HTTP_200_OK,
 )
 async def update_organization(
-    updated_organization: UpdateOrganizationDep, organization_id: UUID, request: UpdateOrganizationDep.HttpRequest
+    update_organization: UpdateOrganizationDep, organization_id: UUID, request: UpdateOrganizationDep.HttpRequest
 ):
-    return await updated_organization.aexecute(
+    return await update_organization.aexecute(
         UpdateOrganizationDep.Request(organization_id=organization_id, **request.model_dump())
     )
 
@@ -60,16 +60,5 @@ async def update_organization(
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_organization(deleted_organization: DeleteOrganizationByIdDep, organization_id: UUID):
+async def delete_organization_by_id(deleted_organization: DeleteOrganizationByIdDep, organization_id: UUID):
     return await deleted_organization.aexecute(DeleteOrganizationByIdDep.Request(organization_id=organization_id))
-
-
-# @router.put(
-#     "/{user_id}",
-#     response_model=UpdateUserDep.Response,
-#     response_description="User updated",
-#     response_model_by_alias=False,
-#     status_code=status.HTTP_200_OK,
-# )
-# async def update_user(update_user: UpdateUserDep, user_id: UUID, request: UpdateUserDep.HttpRequest):
-#     return await update_user.aexecute(UpdateUserDep.Request(user_id=user_id, **request.model_dump()))

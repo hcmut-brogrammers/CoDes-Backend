@@ -29,7 +29,6 @@ class CreateOrganization(ICreateOrganization):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        self._logger.info(self._user_context)
 
         # check if the owner already has a default organization
         filter = {
@@ -37,14 +36,14 @@ class CreateOrganization(ICreateOrganization):
             "owner_id": self._user_context.user_id,
             "is_default": True,
         }
-        data = self._collection.find_one(filter)
+        organization_data = self._collection.find_one(filter)
 
         # process create organization
         organization = OrganizationModel(
             name=request.name,
-            avatar_url=str(request.avatar_url),  # cast HttpUrl -> str
+            avatar_url=str(request.avatar_url),
             owner_id=self._user_context.user_id,
-            is_default=True if not data else False,
+            is_default=True if not organization_data else False,
         )
         organization_data = organization.model_dump(by_alias=True)
         inserted_organization = self._collection.insert_one(organization_data)

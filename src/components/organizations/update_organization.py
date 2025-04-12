@@ -33,17 +33,16 @@ class UpdateOrganization(IUpdateOrganization):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        self._logger.info(self._user_context)
 
-        # update proccess
         update_data = request.model_dump(exclude={"organization_id", "is_default"}, exclude_none=True)
 
-        # cast: HttpUrl -> str
-        update_data["avatar_url"] = str(request.avatar_url)
-
         if not update_data:
-            self._logger.info(f"No fields to update for organization id {request.organization_id}")
-            raise BadRequestError("No fields to update")
+            error_message = f"No fields to update for organization id {request.organization_id}."
+            self._logger.info(error_message)
+            raise BadRequestError(error_message)
+
+        if "avatar_url" in update_data:
+            update_data["avatar_url"] = str(request.avatar_url)
 
         # before update condition check
         filter = {
@@ -53,10 +52,10 @@ class UpdateOrganization(IUpdateOrganization):
         }
         current_organization = self._collection.find_one(filter)
 
-        # NOTE: redefine Error message
         if current_organization is None:
-            self._logger.error(f"Organization with id {request.organization_id} not found")
-            raise NotFoundError(f"Organization with id {request.organization_id} not found")
+            error_message = f"Organization with id {request.organization_id} not found."
+            self._logger.error(error_message)
+            raise NotFoundError(error_message)
 
         updated_organization = OrganizationModel(**current_organization).model_copy(update=update_data)
         updated_organization.updated_at = get_utc_now()
