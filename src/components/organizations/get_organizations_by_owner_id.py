@@ -29,7 +29,7 @@ class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
         organizations_data = self._collection.find(filter)
 
         if not organizations_data:
-            error_message = f"Organization with owner_id {self._user_context.user_id} not found."
+            error_message = f"No organization with owner_id {self._user_context.user_id} is found."
             self._logger.error(error_message)
             raise NotFoundError(error_message)
 

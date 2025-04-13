@@ -56,7 +56,7 @@ async def update_organization(
 @router.delete(
     "/{organization_id}",
     response_model=DeleteOrganizationByIdDep.Response,
-    response_description="Organization updated",
+    response_description="Organization deleted",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
