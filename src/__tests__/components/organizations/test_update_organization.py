@@ -6,7 +6,7 @@ import pytest
 from pydantic import HttpUrl
 
 from ....common.models import OrganizationModel
-from ....components.organizations.delete_organization_by_id import UpdateOrganization
+from ....components.organizations.update_organization import UpdateOrganization
 from ....exceptions import BadRequestError, InternalServerError, NotFoundError
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
