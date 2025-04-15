@@ -23,6 +23,11 @@ class NotFoundError(AppException):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, error_message=error_message)
 
 
+class ForbiddenError(AppException):
+    def __init__(self, error_message: str) -> None:
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, error_message=error_message)
+
+
 class BadRequestError(AppException):
     def __init__(self, error_message: str) -> None:
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, error_message=error_message)
