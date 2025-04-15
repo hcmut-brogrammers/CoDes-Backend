@@ -10,3 +10,4 @@ class OrganizationModel(BaseModelWithId, BaseModelWithDateTime, BaseModelWithSof
     name: str = p.Field(alias="name")
     avatar_url: str | None = p.Field(default=None, alias="avatar_url")
     owner_id: PyObjectUUID = p.Field(alias="owner_id")
+    is_default: bool = p.Field(default=False, alias="is_default")
