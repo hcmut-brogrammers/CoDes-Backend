@@ -16,7 +16,7 @@ DATABASE_NAME = "database"
 
 
 # def create_mongodb_database(logger: LoggerDep) -> Database:
-def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase:
+def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase | Database:
     try:
         codec_options: CodecOptions = CodecOptions(
             uuid_representation=UuidRepresentation.STANDARD,  # use standard UUID representation

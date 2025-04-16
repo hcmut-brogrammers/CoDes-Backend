@@ -5,7 +5,10 @@ from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
 
+from src.constants.mongo import CollectionName
+
 IS_DELETED = "is_deleted"
+NON_SOFT_DELETE_COLLECTIONS = {CollectionName.REFRESH_TOKENS}
 
 
 class SoftDeleteCollection(Collection):
@@ -37,6 +40,10 @@ class WrappedDatabase(Database):
         read_preference=None,
         write_concern=None,
         read_concern=None,
-    ) -> SoftDeleteCollection:
+    ) -> SoftDeleteCollection | Collection:
+
+        if name in NON_SOFT_DELETE_COLLECTIONS:
+            return super().get_collection(name, codec_options)
+
         raw_collection = super().get_collection(name, codec_options)
         return SoftDeleteCollection(raw_collection)
