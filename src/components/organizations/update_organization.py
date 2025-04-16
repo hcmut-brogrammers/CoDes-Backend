@@ -34,7 +34,7 @@ class UpdateOrganization(IUpdateOrganization):
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
 
-        update_data = request.model_dump(exclude={"organization_id"}, exclude_none=True)
+        update_data = request.model_dump(exclude={"organization_id", "is_default"}, exclude_none=True)
 
         if not update_data:
             error_message = f"No fields to update for organization id {request.organization_id}."
@@ -48,7 +48,7 @@ class UpdateOrganization(IUpdateOrganization):
         filter = {
             "_id": request.organization_id,
             "owner_id": self._user_context.user_id,
-            "is_deleted": False,
+            # "is_deleted": False,
         }
         current_organization = self._collection.find_one(filter)
 
