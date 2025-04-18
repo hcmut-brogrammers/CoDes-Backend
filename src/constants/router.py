@@ -16,3 +16,4 @@ class ApiPath:
     USERS = "/users"
     ORGANIZATIONS = "/organizations"
     TESTS = "/tests"
+    PRODUCTS = "/products"

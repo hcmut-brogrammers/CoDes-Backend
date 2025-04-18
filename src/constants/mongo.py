@@ -7,3 +7,4 @@ class CollectionName:
     USERS: str = "users"
     REFRESH_TOKENS: str = "refresh_tokens"
     ORGANIZATIONS: str = "organizations"
+    PRODUCTS: str = "product"

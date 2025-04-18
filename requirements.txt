@@ -8,3 +8,7 @@ black
 isort
 pyjwt
 passlib[bcrypt]
+
+beanie[odm]
+motor
+# pydantic

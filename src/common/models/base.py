@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 import pydantic as p
+from beanie import Document
 
 from ...utils.common import generate_uuid, get_utc_now
 
@@ -28,7 +29,12 @@ def validate_datetime(value: datetime | str) -> datetime:
 PyObjectUUID = Annotated[UUID, p.BeforeValidator(validate_uuid)]
 PyObjectDatetime = Annotated[datetime, p.BeforeValidator(validate_datetime)]
 
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import core_schema
 
+
+# class BaseModelWithId(p.BaseModel):
+# class BaseModelWithId(Document, p.BaseModel):
 class BaseModelWithId(p.BaseModel):
     id: PyObjectUUID = p.Field(alias="_id", default_factory=generate_uuid)
 
@@ -36,6 +42,13 @@ class BaseModelWithId(p.BaseModel):
         populate_by_name=True,
         arbitrary_types_allowed=True,
     )
+
+    # class Settings:
+    #     # Ensure MongoDB stores the UUID as a string or binary
+    #     bson_encoders = {
+    #         PyObjectUUID: lambda u: str(u)  # Store UUID as string in MongoDB
+    #         # Alternatively, use uuid.UUID: lambda u: u for binary storage
+    #     }
 
 
 class BaseModelWithDateTime(p.BaseModel):
