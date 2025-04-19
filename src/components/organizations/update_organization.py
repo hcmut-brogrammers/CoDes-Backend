@@ -48,7 +48,6 @@ class UpdateOrganization(IUpdateOrganization):
         filter = {
             "_id": request.organization_id,
             "owner_id": self._user_context.user_id,
-            "is_deleted": False,
         }
         current_organization = self._collection.find_one(filter)
 

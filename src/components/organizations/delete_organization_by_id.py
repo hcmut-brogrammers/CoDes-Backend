@@ -36,7 +36,6 @@ class DeleteOrganizationById(IDeleteOrganizationById):
         filter = {
             "_id": organization_id,
             "owner_id": self._user_context.user_id,
-            "is_deleted": False,
         }
         organization_data = self._collection.find_one(filter)
 
