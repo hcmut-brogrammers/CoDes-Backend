@@ -10,11 +10,12 @@ from pymongo.server_api import ServerApi
 from ..config import settings
 from ..exceptions import InternalServerError
 from ..logger import LoggerDep
+from .wrapped_db import WrappedDatabase
 
 DATABASE_NAME = "database"
 
 
-def create_mongodb_database(logger: LoggerDep) -> Database:
+def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase:
     try:
         codec_options: CodecOptions = CodecOptions(
             uuid_representation=UuidRepresentation.STANDARD,  # use standard UUID representation
@@ -24,10 +25,10 @@ def create_mongodb_database(logger: LoggerDep) -> Database:
         client.admin.command("ping")
         logger.info("Connected successfully to MongoDB")
         database = client.get_database(DATABASE_NAME, codec_options=codec_options)
-        return database
+        return WrappedDatabase(database)
     except Exception as e:
         logger.error(f"Failed to connect to MongoDB: {e}", exc_info=True, stack_info=True)
         raise InternalServerError("Failed to connect to MongoDB") from e
 
 
-MongoDbDep = t.Annotated[Database, Depends(create_mongodb_database)]
+MongoDbDep = t.Annotated[WrappedDatabase, Depends(create_mongodb_database)]
