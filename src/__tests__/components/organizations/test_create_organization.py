@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, call
 from uuid import uuid4
 
 import pytest
@@ -57,7 +57,13 @@ class TestCreateOrganization:
 
         # Verify interactions
         mock_collection.insert_one.assert_called_once()
-        mock_collection.find_one.assert_called_once_with({"_id": organization.id})
+        filter = {
+            "owner_id": mock_user_context.user_id,
+            "is_default": True,
+        }
+        mock_collection.find_one.call_count == 2
+        expect_calls = [call(filter), call({"_id": organization.id})]
+        assert mock_collection.find_one.call_args_list == expect_calls
 
     @pytest.mark.asyncio
     async def test_aexecute_when_organizations_not_found_throws_internal_server_error(
@@ -95,4 +101,10 @@ class TestCreateOrganization:
 
         # Verify interactions
         mock_collection.insert_one.assert_called_once()
-        mock_collection.find_one.assert_called_once_with({"_id": organization.id})
+        filter = {
+            "owner_id": mock_user_context.user_id,
+            "is_default": True,
+        }
+        mock_collection.find_one.call_count == 2
+        expect_calls = [call(filter), call({"_id": organization.id})]
+        assert mock_collection.find_one.call_args_list == expect_calls
