@@ -14,7 +14,6 @@ on:
           - prod
 
 env:
-  GCP_SERVICE_ACCOUNT_KEY_PATH: $HOME/gcp-service-account-key.json
   GCP_REGION: us-central1
 
 jobs:
@@ -35,15 +34,11 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Decode Google Cloud service account key
+      # Decode Google Cloud service account key and set credentials_json
+      - name: Decode and set credentials_json
+        id: set_credentials_json
         run: |
-          echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode > ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }}
-
-      # Read the JSON file and set it to credentials_json
-      - name: Read service account key and set credentials_json
-        id: read_credentials
-        run: |
-          credentials_json=$(cat ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }})
+          credentials_json=$(echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode)
           echo "credentials_json=$credentials_json" >> $GITHUB_ENV
 
       # Set up Google Cloud authentication
