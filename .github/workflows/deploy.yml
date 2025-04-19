@@ -39,13 +39,25 @@ jobs:
         run: |
           echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode > ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }}
 
+      # Read the JSON file and set it to credentials_json
+      - name: Read service account key and set credentials_json
+        id: read_credentials
+        run: |
+          credentials_json=$(cat ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }})
+          echo "credentials_json=$credentials_json" >> $GITHUB_ENV
+
+      # Set up Google Cloud authentication
+      - name: Authenticate by Google Service Account
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ env.credentials_json }}
+
       # Set up Google Cloud SDK
-      - name: Set up Google Cloud SDK
+      - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
-          service_account_key: ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }}
-          export_default_credentials: true
+          version: '>= 363.0.0'
 
       # Authenticate Docker with Google Cloud
       - name: Authenticate Docker with Google Cloud
