@@ -1,12 +1,8 @@
-name: 🚀 Deploy BE (dev)
+name: 🚀 Build and Deploy BE
 
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Select a branch to deploy'
-        required: true
-        default: 'dev'
       environment:
         type: choice
         description: 'Select an environment to deploy the branch'
