@@ -25,7 +25,7 @@ class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
 
     async def aexecute(self) -> "Response":
         self._logger.info(execute_service_method(self))
-        filter = {"owner_id": self._user_context.user_id, "is_deleted": False}
+        filter = {"owner_id": self._user_context.user_id}
         organizations_data = self._collection.find(filter)
 
         if not organizations_data:

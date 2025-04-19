@@ -32,7 +32,6 @@ class CreateOrganization(ICreateOrganization):
 
         # check if the owner already has a default organization
         filter = {
-            "is_deleted": False,
             "owner_id": self._user_context.user_id,
             "is_default": True,
         }
