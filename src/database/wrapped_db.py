@@ -17,13 +17,13 @@ class SoftDeleteCollection(Collection):
 
     def find_one(self, filter: Any | None = None, *args, **kwargs):
         filter = filter or {}
-        if not IS_DELETED in filter:
+        if IS_DELETED not in filter:
             filter[IS_DELETED] = False
         return super().find_one(filter, *args, **kwargs)
 
     def find(self, filter: Any | None = None, *args, **kwargs) -> Cursor:
         filter = filter or {}
-        if not IS_DELETED in filter:
+        if IS_DELETED not in filter:
             filter[IS_DELETED] = False
         return super().find(filter, *args, **kwargs)
 

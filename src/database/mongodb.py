@@ -15,7 +15,6 @@ from .wrapped_db import WrappedDatabase
 DATABASE_NAME = "database"
 
 
-# def create_mongodb_database(logger: LoggerDep) -> Database:
 def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase:
     try:
         codec_options: CodecOptions = CodecOptions(
@@ -26,7 +25,6 @@ def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase:
         client.admin.command("ping")
         logger.info("Connected successfully to MongoDB")
         database = client.get_database(DATABASE_NAME, codec_options=codec_options)
-        # return database
         return WrappedDatabase(database)
     except Exception as e:
         logger.error(f"Failed to connect to MongoDB: {e}", exc_info=True, stack_info=True)
@@ -34,4 +32,3 @@ def create_mongodb_database(logger: LoggerDep) -> WrappedDatabase:
 
 
 MongoDbDep = t.Annotated[WrappedDatabase, Depends(create_mongodb_database)]
-# MongoDbDep = t.Annotated[Database, Depends(create_mongodb_database)]
