@@ -64,8 +64,6 @@ class TestCreateOrganization:
         mock_collection.find_one.call_count == 2
         expect_calls = [call(filter), call({"_id": organization.id})]
         assert mock_collection.find_one.call_args_list == expect_calls
-        # mock_collection.find_one.assert_called_once_with(filter)
-        # mock_collection.find_one.assert_called_once_with({"_id": organization.id})
 
     @pytest.mark.asyncio
     async def test_aexecute_when_organizations_not_found_throws_internal_server_error(

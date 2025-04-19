@@ -39,7 +39,6 @@ class TestDeleteOrganizationById:
             name="org_test", avatar_url="http://example.com/avatar.png", owner_id=user_id, is_default=False
         )
 
-        # delete_data = {"is_deleted": True, "delete_at": get_utc_now()}
         delete_data = {"is_deleted": True}
         mock_delete_organization = organization.model_copy(update=delete_data)
         mock_collection.configure_mock(
@@ -55,7 +54,7 @@ class TestDeleteOrganizationById:
 
         # Assertions
         assert response.deleted_organization is not None
-        assert response.deleted_organization.is_deleted == True
+        assert response.deleted_organization.is_deleted == mock_delete_organization.is_deleted
         assert response.deleted_organization.is_default == mock_delete_organization.is_default
         assert response.deleted_organization.id == mock_delete_organization.id
         assert response.deleted_organization.name == mock_delete_organization.name
@@ -81,11 +80,8 @@ class TestDeleteOrganizationById:
             name="org_test", avatar_url="http://example.com/avatar.png", owner_id=user_id, is_default=True
         )
 
-        # delete_data = {"is_deleted": True, "delete_at": get_utc_now()}
-        delete_data = {"is_deleted": True}
-
         mock_collection.configure_mock(find_one=Mock(return_value=organization.model_dump(by_alias=True)))
-        # print(f"CHECK ORG IS_DEFAULT: {organization.is_default}!!!!!!")
+
         # Initialize the component
         delete_organization = DeleteOrganizationById(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 

@@ -42,7 +42,7 @@ class TestUpdateOrganization:
         update_data = {"name": "update_name", "avatar_url": "http://example.com/avatar.png/update"}
         mock_update_organization = organization.model_copy(update=update_data)
         mock_collection.configure_mock(
-            update_one=Mock(return_vaulue=None), find_one=Mock(return_value=organization.model_dump(by_alias=True))
+            update_one=Mock(return_value=None), find_one=Mock(return_value=organization.model_dump(by_alias=True))
         )
 
         # Initialize the component
@@ -76,9 +76,6 @@ class TestUpdateOrganization:
         # Mock request and database response
         organization_id = uuid4()
         update_data = {}
-
-        # is it necessary to config_mock for collection(update_one, find_one)
-        mock_collection.configure_mock(update_one=Mock(return_vaulue=None), find_one=Mock(return_value=None))
 
         # Initialize the component
         update_organization = UpdateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
