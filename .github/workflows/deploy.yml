@@ -65,6 +65,7 @@ jobs:
           gcloud run deploy fastapi-app \
             --image ${{ env.IMAGE_NAME }}:$TAG \
             --region ${{ env.GCP_REGION }} \
+            --port 8000 \
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }} \
