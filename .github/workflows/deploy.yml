@@ -1,0 +1,75 @@
+name: 🚀 Deploy BE (dev)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Select a branch to deploy'
+        required: true
+        default: 'dev'
+      environment:
+        type: choice
+        description: 'Select an environment to deploy the branch'
+        required: true
+        default: 'dev'
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  GCP_SERVICE_ACCOUNT_KEY_PATH: $HOME/gcp-service-account-key.json
+  GCP_REGION: us-central1
+
+jobs:
+  deploy:
+    name: Deploy to Google Cloud Run
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    env:
+      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/fastapi-app
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Decode Google Cloud service account key
+        run: |
+          echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode > ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }}
+
+      # Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SERVICE_ACCOUNT_KEY_PATH }}
+          export_default_credentials: true
+
+      # Authenticate Docker with Google Cloud
+      - name: Authenticate Docker with Google Cloud
+        run: gcloud auth configure-docker
+
+      # Build and push Docker image to Google Container Registry
+      - name: Build and push Docker image
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c 7)
+          docker build -t ${{ env.IMAGE_NAME }}:$TAG .
+          docker push ${{ env.IMAGE_NAME }}:$TAG
+
+      # Deploy to Google Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c 7)
+          gcloud run deploy fastapi-app \
+            --image ${{ env.IMAGE_NAME }}:$TAG \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }} \
+            --set-env-vars MONGO_URI=${{ env.MONGO_URI }}
