@@ -38,7 +38,7 @@ jobs:
       - name: Decode and set credentials_json
         id: set_credentials_json
         run: |
-          credentials_json=$(echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode)
+          credentials_json=$(echo "${{ env.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode | jq -c .)
           echo "credentials_json=$credentials_json" >> $GITHUB_ENV
 
       # Set up Google Cloud authentication
