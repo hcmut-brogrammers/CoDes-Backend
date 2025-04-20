@@ -11,7 +11,7 @@ on:
         options:
           - dev
           - staging
-          - prod
+          - production
 
 env:
   GCP_REGION: us-central1
