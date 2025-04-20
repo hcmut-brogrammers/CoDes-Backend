@@ -1,4 +1,5 @@
 import typing as t
+from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
@@ -11,37 +12,42 @@ from ...exceptions import InternalServerError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
-ICreateOrganization = IBaseComponent["CreateOrganization.Request", "CreateOrganization.Response"]
+ICreateDefaultOrganization = IBaseComponent["CreateDefaultOrganization.Request", "CreateDefaultOrganization.Response"]
 
 
-class CreateOrganization(ICreateOrganization):
-    def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
+class CreateDefaultOrganization(ICreateDefaultOrganization):
+    def __init__(self, db: MongoDbDep, logger: LoggerDep) -> None:
         self._collection = db.get_collection(CollectionName.ORGANIZATIONS)
         self._logger = logger
-        self._user_context = user_context
 
     class Request(p.BaseModel):
-        name: str = p.Field(default="Default Organization")
-        avatar_url: p.HttpUrl | None = None
+        owner_id: UUID
+        owner_name: str
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
+
+    def gen_default_organization_name(self, owner_name: str) -> str:
+        return f"{owner_name[0].upper() + owner_name[1:]}'s Default Organization"
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
 
         # check if the owner already has a default organization
         filter = {
-            "owner_id": self._user_context.user_id,
+            "owner_id": request.owner_id,
             "is_default": True,
         }
         organization_data = self._collection.find_one(filter)
 
         # process create organization
+        default_name = self.gen_default_organization_name(request.owner_name)
+        default_avatar_url = "https://i.etsystatic.com/45893541/r/il/545bc4/6453954482/il_570xN.6453954482_q062.jpg"
+
         organization = OrganizationModel(
-            name=request.name,
-            avatar_url=str(request.avatar_url),
-            owner_id=self._user_context.user_id,
+            name=default_name,
+            avatar_url=default_avatar_url,
+            owner_id=request.owner_id,
             is_default=True if not organization_data else False,
         )
         organization_data = organization.model_dump(by_alias=True)
@@ -59,4 +65,4 @@ class CreateOrganization(ICreateOrganization):
         return self.Response(created_organization=created_organization)
 
 
-CreateOrganizationDep = t.Annotated[CreateOrganization, Depends()]
+CreateDefaultOrganizationDep = t.Annotated[CreateDefaultOrganization, Depends()]
