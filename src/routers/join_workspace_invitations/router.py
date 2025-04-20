@@ -14,9 +14,9 @@ router = APIRouter(
 @router.post(
     "",
     response_model=CreateMultiInvitation.Response,
-    response_description="Organization created",
+    response_description="Join Organization Invitations created",
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_multi_invitation(create_organization: CreateMultiInvitation, request: CreateMultiInvitation.Request):
+async def create_multi_invitations(create_organization: CreateMultiInvitation, request: CreateMultiInvitation.Request):
     return await create_organization.aexecute(request)
