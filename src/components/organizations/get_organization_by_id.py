@@ -20,14 +20,14 @@ class GetOrganizationById(IGetOrganizationById):
         self._logger = logger
 
     class Request(p.BaseModel):
-        _id: UUID
+        id: UUID
 
     class Response(p.BaseModel):
         organization: OrganizationModel
 
     async def aexecute(self, request: Request) -> "Response":
         self._logger.info(execute_service_method(self))
-        _id = request._id
+        _id = request.id
         filter = {"_id": _id}
         organization_data = self._collection.find_one(filter)
 

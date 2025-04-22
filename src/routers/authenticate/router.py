@@ -51,15 +51,15 @@ async def refresh_access_token(refresh_access_token: RefreshAccessTokenDep, requ
     return await refresh_access_token.aexecute(request)
 
 
-@router.put(
-    ApiPath.SWITCH_ORGANIZATION,
-    response_model=Regen_access_token_for_switching_organizationDep.Response,
-    response_description="re-generate access token for switching organizaiton successfully",
-    response_model_by_alias=False,
-    status_code=200,
-)
-async def regen_access_token_for_switching_organization(
-    regen_access_token: Regen_access_token_for_switching_organizationDep,
-    request: Regen_access_token_for_switching_organization.Request,
-):
-    return await regen_access_token.aexecute(request)
+# @router.post(
+#     ApiPath.SWITCH_ORGANIZATION,
+#     response_model=Regen_access_token_for_switching_organizationDep.Response,
+#     response_description="re-generate access token for switching organizaiton successfully",
+#     response_model_by_alias=False,
+#     status_code=200,
+# )
+# async def regen_access_token_for_switching_organization(
+#     regen_access_token: Regen_access_token_for_switching_organizationDep,
+#     request: Regen_access_token_for_switching_organization.Request,
+# ):
+#     return await regen_access_token.aexecute(request)

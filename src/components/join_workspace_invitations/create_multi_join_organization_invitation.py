@@ -58,11 +58,11 @@ class CreateMultiJoinOrganizationInvitation(ICreateMultiJoinOrganizationInvitati
             raise BadRequestError(error_message)
 
         # process create multi invitations
-        invitations = [
+        invitation_responses = [
             await self._create_invitation.aexecute(CreateJoinOrganizationInvitationDep.Request(user_id=user_id))
             for user_id in receiver_ids
         ]
-        return self.Response(invitations=list(map(lambda response: response.invitation, invitations)))
+        return self.Response(invitations=list(map(lambda response: response.invitation, invitation_responses)))
 
 
 CreateMultiJoinOrganizationInvitationDep = t.Annotated[CreateMultiJoinOrganizationInvitation, Depends()]
