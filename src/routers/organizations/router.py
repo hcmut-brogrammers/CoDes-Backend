@@ -6,6 +6,8 @@ from ...components.organizations import (
     CreateOrganizationDep,
     DeleteOrganizationByIdDep,
     GetOrganizationsByOwnerIdDep,
+    SwitchOrganization,
+    SwitchOrganizationDep,
     UpdateOrganizationDep,
 )
 from ...constants.router import ApiPath
@@ -13,10 +15,6 @@ from ...constants.router import ApiPath
 router = APIRouter(
     prefix=ApiPath.ORGANIZATIONS,
     tags=["organizations"],
-)
-from ...components.authenticate import (
-    Regen_access_token_for_switching_organization,
-    Regen_access_token_for_switching_organizationDep,
 )
 
 
@@ -70,13 +68,13 @@ async def delete_organization_by_id(deleted_organization: DeleteOrganizationById
 
 @router.post(
     ApiPath.SWITCH_ORGANIZATION,
-    response_model=Regen_access_token_for_switching_organizationDep.Response,
+    response_model=SwitchOrganizationDep.Response,
     response_description="re-generate access token for switching organizaiton successfully",
     response_model_by_alias=False,
     status_code=200,
 )
 async def regen_access_token_for_switching_organization(
-    regen_access_token: Regen_access_token_for_switching_organizationDep,
-    request: Regen_access_token_for_switching_organization.Request,
+    regen_access_token: SwitchOrganizationDep,
+    request: SwitchOrganization.Request,
 ):
     return await regen_access_token.aexecute(request)

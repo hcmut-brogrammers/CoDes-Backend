@@ -7,7 +7,6 @@ from fastapi import Depends
 
 from ...common.auth import TokenData, UserContextDep
 from ...common.models import RefreshTokenModel, UserRole
-from ...components.organizations.get_organization_by_id import GetOrganizationByIdDep
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
@@ -15,15 +14,14 @@ from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
-from .create_refresh_token import REFRESH_TOKEN_EXPIRES_DAYS, CreateRefreshToken, CreateRefreshTokenDep
-from .sign_up import SignUp
+from ..authenticate.create_refresh_token import REFRESH_TOKEN_EXPIRES_DAYS, CreateRefreshToken, CreateRefreshTokenDep
+from ..authenticate.sign_up import SignUp
+from .get_organization_by_id import GetOrganizationByIdDep
 
-IRegen_access_token_for_switching_organization = IBaseComponent[
-    "Regen_access_token_for_switching_organization.Request", "Regen_access_token_for_switching_organization.Response"
-]
+ISwitchOrganization = IBaseComponent["SwitchOrganization.Request", "SwitchOrganization.Response"]
 
 
-class Regen_access_token_for_switching_organization(IRegen_access_token_for_switching_organization):
+class SwitchOrganization(ISwitchOrganization):
     def __init__(
         self,
         jwt_service: JwtServiceDep,
@@ -132,7 +130,7 @@ class Regen_access_token_for_switching_organization(IRegen_access_token_for_swit
         )
 
 
-Regen_access_token_for_switching_organizationDep = t.Annotated[
-    Regen_access_token_for_switching_organization,
+SwitchOrganizationDep = t.Annotated[
+    SwitchOrganization,
     Depends(),
 ]
