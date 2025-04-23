@@ -29,7 +29,6 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         logger: LoggerDep,
         user_context: UserContextDep,
     ) -> None:
-        self._organization_collection = db.get_collection(CollectionName.ORGANIZATIONS)
         self._invitation_collection = db.get_collection(CollectionName.JOIN_ORGANIZATION_INVITATIONS)
         self._logger = logger
         self._user_context = user_context
