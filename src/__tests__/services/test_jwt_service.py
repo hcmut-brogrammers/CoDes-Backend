@@ -24,6 +24,7 @@ def token_data() -> TokenData:
         username="testuser",
         email="testuser@example.com",
         role=UserRole.OrganizationAdmin,
+        organization_id=generate_uuid(),
         sub="testuser",
         exp=int((get_utc_now() + timedelta(hours=1)).timestamp()),
     )
@@ -37,6 +38,7 @@ def expired_token_data() -> TokenData:
         username="testuser",
         email="testuser@example.com",
         role=UserRole.OrganizationAdmin,
+        organization_id=generate_uuid(),
         sub="testuser",
         exp=int((get_utc_now() - timedelta(hours=1)).timestamp()),
     )
@@ -49,6 +51,7 @@ def validate_decoded_token_data(decoded_token_data: TokenData, token_data: Token
     assert decoded_token_data.email == token_data.email
     assert decoded_token_data.role == token_data.role
     assert decoded_token_data.user_id == token_data.user_id
+    assert decoded_token_data.organization_id == token_data.organization_id
     assert decoded_token_data.sub == token_data.sub
     assert decoded_token_data.exp == token_data.exp
 
@@ -82,7 +85,7 @@ def test_decode_jwt_token_with_bypass_expired_jwt_token_success(
 
 def test_decode_jwt_token_with_invalid_token_throws_exception(jwt_service: JwtService) -> None:
     invalid_token = "invalid.token.value"
-    with pytest.raises(ValueError, match="Error while decoing JWT token."):
+    with pytest.raises(ValueError, match="Error while decoding JWT token."):
         jwt_service.decode_jwt_token(invalid_token)
 
 
@@ -113,7 +116,15 @@ def test_create_user_token_data(jwt_service: JwtService) -> None:
         role=UserRole.OrganizationAdmin,
         hashed_password="hashed_password",
     )
-    token_data = jwt_service.create_user_token_data(user)
+
+    mock_role = UserRole.OrganizationAdmin
+    mock_organization_id = generate_uuid()
+
+    token_data = jwt_service.create_user_token_data(
+        user,
+        mock_role,
+        mock_organization_id,
+    )
     assert token_data is not None
     assert token_data.user_id == user.id
     assert token_data.username == user.username
