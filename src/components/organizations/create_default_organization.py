@@ -6,12 +6,18 @@ from fastapi import Depends
 
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep
+from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, InternalServerError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
 ICreateDefaultOrganization = IBaseComponent["CreateDefaultOrganization.Request", "CreateDefaultOrganization.Response"]
+
+DEFAULT_AVATAR_URL = "https://i.etsystatic.com/45893541/r/il/545bc4/6453954482/il_570xN.6453954482_q062.jpg"
+
+
+def gen_default_organization_name(owner_name: str) -> str:
+    return f"{owner_name[0].upper() + owner_name[1:]}'s Default Organization"
 
 
 class CreateDefaultOrganization(ICreateDefaultOrganization):
@@ -25,9 +31,6 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
-
-    def gen_default_organization_name(self, owner_name: str) -> str:
-        return f"{owner_name[0].upper() + owner_name[1:]}'s Default Organization"
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
@@ -45,8 +48,16 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
             raise BadRequestError(error_message)
 
         # process create organization
-        default_name = self.gen_default_organization_name(request.owner_name)
-        default_avatar_url = "https://i.etsystatic.com/45893541/r/il/545bc4/6453954482/il_570xN.6453954482_q062.jpg"
+        default_name = gen_default_organization_name(request.owner_name)
+        default_avatar_url = DEFAULT_AVATAR_URL
+
+        if organization_data:
+            log_message = (
+                f"the user {request.owner_id} has already owned a default organization. Can not create another default."
+            )
+            error_message = f"the user has already owned a default organization. Can not create another default."
+            self._logger.error(log_message)
+            raise BadRequestError(error_message)
 
         organization = OrganizationModel(
             name=default_name,
