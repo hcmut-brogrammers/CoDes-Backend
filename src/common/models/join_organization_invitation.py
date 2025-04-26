@@ -7,7 +7,7 @@ from .base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelet
 
 
 class Status(str, Enum):
-    Pending = "pending"
+    Pending = "Pending"
     Accepted = "Accepted"
     Rejected = "Rejected"
 
