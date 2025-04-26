@@ -4,14 +4,13 @@ from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
-from pymongo.cursor import Cursor
 
 from src.utils.common import get_utc_now
 
-from ...common.models import JoinOrganizationInvitationModel, Status, TakenAction
+from ...common.models import JoinOrganizationInvitationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...exceptions import BadRequestError
+from ...exceptions import BadRequestError, InternalServerError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
