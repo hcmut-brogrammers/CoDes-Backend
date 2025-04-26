@@ -6,10 +6,9 @@ from ...components.organizations import (
     CreateOrganizationDep,
     DeleteOrganizationByIdDep,
     GetOrganizationsByOwnerIdDep,
-    SwitchOrganization,
-    SwitchOrganizationDep,
     UpdateOrganizationDep,
 )
+from ...components.switch_organization import SwitchOrganization, SwitchOrganizationDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
