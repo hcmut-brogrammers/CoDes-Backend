@@ -3,11 +3,10 @@ from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
-from pymongo.cursor import Cursor
 
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
+from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import InternalServerError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
@@ -38,7 +37,12 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
             "owner_id": request.owner_id,
             "is_default": True,
         }
-        organization_data = self._collection.find_one(filter)
+        is_user_has_default_organization = self._collection.find_one(filter)
+        if is_user_has_default_organization:
+            log_message = f"User with id {request.owner_id} already has a default organization."
+            error_message = f"User already has a default organization."
+            self._logger.error(log_message)
+            raise InternalServerError(error_message)
 
         # process create organization
         default_name = self.gen_default_organization_name(request.owner_name)
@@ -48,7 +52,7 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
             name=default_name,
             avatar_url=default_avatar_url,
             owner_id=request.owner_id,
-            is_default=True if not organization_data else False,
+            is_default=True,
         )
         organization_data = organization.model_dump(by_alias=True)
         inserted_organization = self._collection.insert_one(organization_data)

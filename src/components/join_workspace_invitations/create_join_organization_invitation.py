@@ -8,7 +8,7 @@ from pymongo.cursor import Cursor
 
 from src.utils.common import get_utc_now
 
-from ...common.models import JoinOrganizationInvitationModel, Status
+from ...common.models import JoinOrganizationInvitationModel, Status, TakenAction
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import InternalServerError
@@ -32,6 +32,8 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         self._invitation_collection = db.get_collection(CollectionName.JOIN_ORGANIZATION_INVITATIONS)
         self._logger = logger
         self._user_context = user_context
+        self._organization_collection = db.get_collection(CollectionName.ORGANIZATIONS)
+        self._user_collect = db.get_collection(CollectionName.USERS)
 
     class Request(p.BaseModel):
         user_id: UUID
@@ -46,21 +48,28 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         organization_id = self._user_context.organization_id
         sender_id = self._user_context.user_id
 
-        ## [?] check if receiver is a valid user in database
-        # TODO: Implement
+        # check if the invitation sender is the owner of the organization
+        is_sender_a_organization_owner = self._organization_collection.find_one(
+            {"_id": organization_id, "owner_id": sender_id}
+        )
+        if not is_sender_a_organization_owner:
+            self._logger.error(f"User with id {sender_id}) has no permission to send invitation.")
+            raise InternalServerError("User has no permission to send invitation.")
 
-        ## [?] check if the receiver has been already joined the organization of the sender_id
-        # TODO: Implement
+        # check if receiver is a valid user in database
+        is_receiver_a_valid_user = self._user_collect.find_one({"_id": receiver_id})
+        if not is_receiver_a_valid_user:
+            self._logger.error(f"User with id {receiver_id} is not found.")
+            raise InternalServerError("User is not found.")
 
         # process create an invitation
-        taken_at = get_utc_now()
-        expires_at = taken_at + timedelta(days=INVITATION_EXPIRATION_DAYS)
+        expires_at = get_utc_now() + timedelta(days=INVITATION_EXPIRATION_DAYS)
 
         invitation = JoinOrganizationInvitationModel(
             organization_id=organization_id,
             sender_id=sender_id,
             receiver_id=receiver_id,
-            taken_at=taken_at,
+            taken_action=None,
             expires_at=expires_at,
         )
         invitation_data = invitation.model_dump(by_alias=True)

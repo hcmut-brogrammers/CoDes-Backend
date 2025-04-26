@@ -27,12 +27,12 @@ class GetOrganizationById(IGetOrganizationById):
 
     async def aexecute(self, request: Request) -> "Response":
         self._logger.info(execute_service_method(self))
-        _id = request.id
-        filter = {"_id": _id}
+        organization_id = request.id
+        filter = {"_id": organization_id}
         organization_data = self._collection.find_one(filter)
 
         if not organization_data:
-            log_message = f"No organization with id {_id} is found."
+            log_message = f"No organization with id {organization_id} is found."
             error_message = f"No organization with is found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)

@@ -13,12 +13,12 @@ from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 from .create_join_organization_invitation import CreateJoinOrganizationInvitationDep
 
-ICreateMultiJoinOrganizationInvitation = IBaseComponent[
-    "CreateMultiJoinOrganizationInvitation.Request", "CreateMultiJoinOrganizationInvitation.Response"
+ICreateBatchJoinOrganizationInvitation = IBaseComponent[
+    "CreateBatchJoinOrganizationInvitation.Request", "CreateBatchJoinOrganizationInvitation.Response"
 ]
 
 
-class CreateMultiJoinOrganizationInvitation(ICreateMultiJoinOrganizationInvitation):
+class CreateBatchJoinOrganizationInvitation(ICreateBatchJoinOrganizationInvitation):
     def __init__(
         self,
         db: MongoDbDep,
@@ -65,4 +65,4 @@ class CreateMultiJoinOrganizationInvitation(ICreateMultiJoinOrganizationInvitati
         return self.Response(invitations=list(map(lambda response: response.invitation, invitation_responses)))
 
 
-CreateMultiJoinOrganizationInvitationDep = t.Annotated[CreateMultiJoinOrganizationInvitation, Depends()]
+CreateBatchJoinOrganizationInvitationDep = t.Annotated[CreateBatchJoinOrganizationInvitation, Depends()]
