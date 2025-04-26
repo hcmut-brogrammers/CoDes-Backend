@@ -7,7 +7,7 @@ from fastapi import Depends
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
-from ...exceptions import InternalServerError
+from ...exceptions import BadRequestError, InternalServerError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
@@ -37,12 +37,12 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
             "owner_id": request.owner_id,
             "is_default": True,
         }
-        is_user_has_default_organization = self._collection.find_one(filter)
-        if is_user_has_default_organization:
+        organization_data = self._collection.find_one(filter)
+        if organization_data:
             log_message = f"User with id {request.owner_id} already has a default organization."
             error_message = f"User already has a default organization."
             self._logger.error(log_message)
-            raise InternalServerError(error_message)
+            raise BadRequestError(error_message)
 
         # process create organization
         default_name = self.gen_default_organization_name(request.owner_name)

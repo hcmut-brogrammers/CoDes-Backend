@@ -11,7 +11,7 @@ from src.utils.common import get_utc_now
 from ...common.models import JoinOrganizationInvitationModel, Status, TakenAction
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...exceptions import InternalServerError
+from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
@@ -33,7 +33,7 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         self._logger = logger
         self._user_context = user_context
         self._organization_collection = db.get_collection(CollectionName.ORGANIZATIONS)
-        self._user_collect = db.get_collection(CollectionName.USERS)
+        self._user_collection = db.get_collection(CollectionName.USERS)
 
     class Request(p.BaseModel):
         user_id: UUID
@@ -49,18 +49,16 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         sender_id = self._user_context.user_id
 
         # check if the invitation sender is the owner of the organization
-        is_sender_a_organization_owner = self._organization_collection.find_one(
-            {"_id": organization_id, "owner_id": sender_id}
-        )
-        if not is_sender_a_organization_owner:
+        organization_data = self._organization_collection.find_one({"_id": organization_id, "owner_id": sender_id})
+        if not organization_data:
             self._logger.error(f"User with id {sender_id}) has no permission to send invitation.")
-            raise InternalServerError("User has no permission to send invitation.")
+            raise BadRequestError("User has no permission to send invitation.")
 
         # check if receiver is a valid user in database
-        is_receiver_a_valid_user = self._user_collect.find_one({"_id": receiver_id})
-        if not is_receiver_a_valid_user:
+        user_data = self._user_collection.find_one({"_id": receiver_id})
+        if not user_data:
             self._logger.error(f"User with id {receiver_id} is not found.")
-            raise InternalServerError("User is not found.")
+            raise BadRequestError("User is not found.")
 
         # process create an invitation
         expires_at = get_utc_now() + timedelta(days=INVITATION_EXPIRATION_DAYS)
@@ -80,7 +78,7 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
                 f"Insert join_organization_invitation data with id {inserted_invitation.inserted_id} successfully, but unable to find the created join organization_invitation"
             )
             raise InternalServerError(
-                "Insert join _rganization_invitation data successfully, but unable to find the created join organization_invitation"
+                "Insert join_rganization_invitation data successfully, but unable to find the created join organization_invitation"
             )
 
         created_invitation = JoinOrganizationInvitationModel(**created_invitation)
