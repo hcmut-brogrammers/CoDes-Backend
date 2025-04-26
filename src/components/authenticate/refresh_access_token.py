@@ -62,6 +62,7 @@ class RefreshAccessToken(IRefreshAccessToken):
             self._logger.error("Failed to revoke refresh token.")
             raise BadRequestError("Failed to revoke refresh token.")
 
+        token_data = self._jwt_service.extend_token_data_expiration(token_data)
         new_access_token = self._jwt_service.encode_jwt_token(token_data)
         create_refresh_token_request = CreateRefreshToken.Request(access_token=new_access_token)
         create_refresh_token_response = await self._create_refresh_token.aexecute(create_refresh_token_request)

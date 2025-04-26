@@ -66,6 +66,10 @@ class JwtService:
 
         return token_data
 
+    def extend_token_data_expiration(self, token_data: TokenData) -> TokenData:
+        token_data.exp = int(self._get_access_token_expires().timestamp())
+        return token_data
+
     def _get_access_token_expires(self) -> datetime:
         access_token_expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
         return get_utc_now() + access_token_expires
