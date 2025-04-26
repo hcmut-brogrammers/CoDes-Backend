@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
-from ...components.join_workspace_invitations import CreateMultiJoinOrganizationInvitationDep as CreateMultiInvitation
+from ...components.join_workspace_invitations import CreateBatchJoinOrganizationInvitationDep as CreateMultiInvitation
 from ...constants.router import ApiPath
 
 router = APIRouter(

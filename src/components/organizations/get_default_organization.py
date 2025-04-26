@@ -31,14 +31,14 @@ class GetDefaultOrganization(IGetDefaultOrganization):
     async def aexecute(self, request: Request) -> "Response":
         self._logger.info(execute_service_method(self))
         filter = {"owner_id": request.owner_id, "is_default": True}
-        organizations_data = self._collection.find_one(filter)
+        organization_data = self._collection.find_one(filter)
 
-        if not organizations_data:
+        if not organization_data:
             error_message = f"No default organization with owner_id {request.owner_id} is found."
             self._logger.error(error_message)
             raise NotFoundError(error_message)
 
-        organization = OrganizationModel(**organizations_data)
+        organization = OrganizationModel(**organization_data)
         return self.Response(organization=organization)
 
 

@@ -25,16 +25,14 @@ class AuthenticateUser(IAuthenticateUser):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
-        get_default_organization_by_owner_id_without_user_context: GetDefaultOrganizationDep,
+        get_default_organization: GetDefaultOrganizationDep,
     ) -> None:
         self._get_user_by_email = get_user_by_email
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._db = db
         self._logger = logger
-        self._get_default_organization_by_owner_id_without_user_context = (
-            get_default_organization_by_owner_id_without_user_context
-        )
+        self._get_default_organization = get_default_organization
 
     class Request(p.BaseModel):
         email: str
@@ -58,10 +56,10 @@ class AuthenticateUser(IAuthenticateUser):
             raise BadRequestError(f"Password for user {request.email} is incorrect.")
 
         organization_owner_id = current_user.id
-        get_default_organization = await self._get_default_organization_by_owner_id_without_user_context.aexecute(
+        get_default_organization_response = await self._get_default_organization.aexecute(
             GetDefaultOrganization.Request(owner_id=organization_owner_id)
         )
-        default_organization = get_default_organization.organization
+        default_organization = get_default_organization_response.organization
         token_data = self._jwt_service.create_user_token_data(
             user=current_user, user_role=UserRole.OrganizationAdmin, organization_id=default_organization.id
         )

@@ -28,7 +28,7 @@ class SignUp(ISignUp):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
-        create_organization: CreateDefaultOrganizationDep,
+        create_default_organization: CreateDefaultOrganizationDep,
     ) -> None:
         self._create_user = create_user
         self._get_user_by_email = get_user_by_email
@@ -36,7 +36,7 @@ class SignUp(ISignUp):
         self._create_refresh_token = create_refresh_token
         self._collection = db.get_collection(CollectionName.USERS)
         self._logger = logger
-        self._create_organization = create_organization
+        self._create_default_organization = create_default_organization
 
     class Request(p.BaseModel):
         email: p.EmailStr
@@ -67,7 +67,7 @@ class SignUp(ISignUp):
 
         created_user: UserModel = create_user_response.created_user
         # CreateOrganizationDep handle when create default or non-default organization
-        create_default_organization_response = await self._create_organization.aexecute(
+        create_default_organization_response = await self._create_default_organization.aexecute(
             CreateDefaultOrganization.Request(owner_id=created_user.id, owner_name=created_user.username)
         )
         token_data = self._jwt_service.create_user_token_data(
