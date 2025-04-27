@@ -12,14 +12,7 @@ from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
-from ..authenticate import (
-    CreateRefreshToken,
-    CreateRefreshTokenDep,
-    RefreshAccessTokenDep,
-    RevokeRefreshToken,
-    RevokeRefreshTokenDep,
-    SignUp,
-)
+from ..authenticate import CreateRefreshToken, CreateRefreshTokenDep, RevokeRefreshToken, RevokeRefreshTokenDep, SignUp
 from ..organizations.get_organization_by_id import GetOrganizationByIdDep
 
 ISwitchOrganization = IBaseComponent["SwitchOrganization.Request", "SwitchOrganization.Response"]
@@ -35,7 +28,6 @@ class SwitchOrganization(ISwitchOrganization):
         logger: LoggerDep,
         get_organization: GetOrganizationByIdDep,
         user_context: UserContextDep,
-        refresh_access_token: RefreshAccessTokenDep,
     ) -> None:
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
@@ -45,7 +37,6 @@ class SwitchOrganization(ISwitchOrganization):
         self._refresh_token_collection = self._db.get_collection(CollectionName.REFRESH_TOKENS)
         self._get_organization = get_organization
         self._user_context = user_context
-        self._refresh_access_token = refresh_access_token
 
     class Request(p.BaseModel):
         access_token: str
