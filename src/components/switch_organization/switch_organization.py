@@ -6,8 +6,7 @@ from fastapi import Depends
 
 from ...common.auth import TokenData, UserContextDep
 from ...common.models import OrganizationModel, UserRole
-from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep
+from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
@@ -24,7 +23,6 @@ class SwitchOrganization(ISwitchOrganization):
         jwt_service: JwtServiceDep,
         create_refresh_token: CreateRefreshTokenDep,
         revoke_refresh_token: RevokeRefreshTokenDep,
-        db: MongoDbDep,
         logger: LoggerDep,
         get_organization: GetOrganizationByIdDep,
         user_context: UserContextDep,
@@ -32,9 +30,7 @@ class SwitchOrganization(ISwitchOrganization):
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._revoke_refresh_token = revoke_refresh_token
-        self._db = db
         self._logger = logger
-        self._refresh_token_collection = self._db.get_collection(CollectionName.REFRESH_TOKENS)
         self._get_organization = get_organization
         self._user_context = user_context
 
