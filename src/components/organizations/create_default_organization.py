@@ -42,22 +42,16 @@ class CreateDefaultOrganization(ICreateDefaultOrganization):
         }
         organization_data = self._collection.find_one(filter)
         if organization_data:
-            log_message = f"User with id {request.owner_id} already has a default organization."
-            error_message = f"User already has a default organization."
-            self._logger.error(log_message)
-            raise BadRequestError(error_message)
-
-        # process create organization
-        default_name = gen_default_organization_name(request.owner_name)
-        default_avatar_url = DEFAULT_AVATAR_URL
-
-        if organization_data:
             log_message = (
                 f"the user {request.owner_id} has already owned a default organization. Can not create another default."
             )
             error_message = f"the user has already owned a default organization. Can not create another default."
             self._logger.error(log_message)
             raise BadRequestError(error_message)
+
+        # process create organization
+        default_name = gen_default_organization_name(request.owner_name)
+        default_avatar_url = DEFAULT_AVATAR_URL
 
         organization = OrganizationModel(
             name=default_name,

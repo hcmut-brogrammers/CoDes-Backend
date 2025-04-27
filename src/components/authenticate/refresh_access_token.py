@@ -5,8 +5,7 @@ import pydantic as p
 from fastapi import Depends
 
 from ...common.auth import TokenData
-from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep
+from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
@@ -24,15 +23,12 @@ class RefreshAccessToken(IRefreshAccessToken):
         jwt_service: JwtServiceDep,
         create_refresh_token: CreateRefreshTokenDep,
         revoke_refresh_token: RevokeRefreshTokenDep,
-        db: MongoDbDep,
         logger: LoggerDep,
     ) -> None:
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._revoke_refresh_token = revoke_refresh_token
-        self._db = db
         self._logger = logger
-        self._collection = self._db.get_collection(CollectionName.REFRESH_TOKENS)
 
     class Request(p.BaseModel):
         access_token: str

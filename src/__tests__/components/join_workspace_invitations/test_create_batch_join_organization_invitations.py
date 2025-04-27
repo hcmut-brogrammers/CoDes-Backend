@@ -6,12 +6,12 @@ import pytest
 
 from ....common.models.join_organization_invitation import JoinOrganizationInvitationModel, Status
 from ....common.models.organization import OrganizationModel
+from ....components.join_workspace_invitations.create_batch_join_organization_invitations import (
+    CreateBatchJoinOrganizationInvitation,
+)
 from ....components.join_workspace_invitations.create_join_organization_invitation import (
     INVITATION_EXPIRATION_DAYS,
     CreateJoinOrganizationInvitation,
-)
-from ....components.join_workspace_invitations.create_multi_join_organization_invitations import (
-    CreateMultiJoinOrganizationInvitation,
 )
 from ....exceptions import BadRequestError, InternalServerError
 from ....utils.common import get_utc_now
@@ -30,7 +30,7 @@ def mock_setup() -> MockSetUp:
     return mock_db, mock_logger, mock_user_context, mock_create_invitation, mock_organization_collection
 
 
-class TestCreateOrganization:
+class TestCreateBatchJoinOrganizationInvitation:
     @pytest.mark.asyncio
     async def test_aexecute_success(self, mock_setup: MockSetUp) -> None:
         # Setup mocks
@@ -56,9 +56,8 @@ class TestCreateOrganization:
                 organization_id=mock_organization_id,
                 sender_id=mock_sender_id,
                 receiver_id=mock_receiver_id,
-                status=Status.pending,
+                status=Status.Pending,
                 taken_action=None,
-                taken_at=mock_taken_at,
                 expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
             )
             for mock_receiver_id in mock_receivers_id
@@ -81,7 +80,7 @@ class TestCreateOrganization:
         mock_create_invitation.configure_mock(aexecute=AsyncMock(side_effect=response_create_invitation))
 
         # Initialize the component
-        create_multi_invitations = CreateMultiJoinOrganizationInvitation(
+        create_multi_invitations = CreateBatchJoinOrganizationInvitation(
             db=mock_db,
             logger=mock_logger,
             user_context=mock_user_context,
@@ -89,7 +88,7 @@ class TestCreateOrganization:
         )
 
         # Execute the component
-        request = CreateMultiJoinOrganizationInvitation.Request(user_ids=mock_receivers_id)
+        request = CreateBatchJoinOrganizationInvitation.Request(user_ids=mock_receivers_id)
         response = await create_multi_invitations.aexecute(request)
 
         # Assertions
@@ -100,7 +99,7 @@ class TestCreateOrganization:
             assert invitation.organization_id == mock_organization_id
             assert invitation.sender_id == mock_sender_id
             assert invitation.receiver_id == mock_invitation.receiver_id
-            assert invitation.status == Status.pending
+            assert invitation.status == Status.Pending
             assert invitation.taken_action is None
 
         # Verify interactions
@@ -147,7 +146,7 @@ class TestCreateOrganization:
         )
 
         # Initialize the component
-        create_multi_invitations = CreateMultiJoinOrganizationInvitation(
+        create_multi_invitations = CreateBatchJoinOrganizationInvitation(
             db=mock_db,
             logger=mock_logger,
             user_context=mock_user_context,
@@ -155,7 +154,7 @@ class TestCreateOrganization:
         )
 
         # Execute the component
-        request = CreateMultiJoinOrganizationInvitation.Request(user_ids=mock_receivers_id)
+        request = CreateBatchJoinOrganizationInvitation.Request(user_ids=mock_receivers_id)
         with pytest.raises(BadRequestError):
             await create_multi_invitations.aexecute(request)
 

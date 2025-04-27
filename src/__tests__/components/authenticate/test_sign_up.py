@@ -97,7 +97,7 @@ class TestSignUp:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
-            create_organization=mock_create_default_organization,
+            create_default_organization=mock_create_default_organization,
         )
 
         sign_up_request = SignUp.Request(
@@ -173,7 +173,7 @@ class TestSignUp:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
-            create_organization=mock_create_default_organization,
+            create_default_organization=mock_create_default_organization,
         )
 
         sign_up_request = SignUp.Request(

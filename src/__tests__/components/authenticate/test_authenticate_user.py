@@ -84,7 +84,7 @@ class TestAuthenticateUser:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
-            get_default_organization_by_owner_id_without_user_context=mock_get_default_organization,
+            get_default_organization=mock_get_default_organization,
         )
 
         authenticate_request = AuthenticateUser.Request(email=mock_user.email, password="password")
@@ -129,7 +129,7 @@ class TestAuthenticateUser:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
-            get_default_organization_by_owner_id_without_user_context=mock_get_default_organization,
+            get_default_organization=mock_get_default_organization,
         )
 
         authenticate_request = AuthenticateUser.Request(email="nonexistent@gmail.com", password="password")
@@ -175,7 +175,7 @@ class TestAuthenticateUser:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
-            get_default_organization_by_owner_id_without_user_context=mock_get_default_organization,
+            get_default_organization=mock_get_default_organization,
         )
 
         authenticate_request = AuthenticateUser.Request(email=mock_user.email, password="wrong_password")
