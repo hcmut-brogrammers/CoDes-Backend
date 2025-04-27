@@ -1,9 +1,6 @@
-from uuid import UUID
-
 from fastapi import APIRouter, status
 
-from ...components.join_workspace_invitations import CreateBatchJoinOrganizationInvitationDep as CreateMultiInvitation
-from ...components.join_workspace_invitations import GetInvitationsForReceiverDep
+from ...components.join_organization_invitations import CreateBatchJoinOrganizationInvitationDep, GetUserInvitationsDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -14,21 +11,24 @@ router = APIRouter(
 
 @router.post(
     "",
-    response_model=CreateMultiInvitation.Response,
+    response_model=CreateBatchJoinOrganizationInvitationDep.Response,
     response_description="Join Organization Invitations created",
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_multi_invitations(create_organization: CreateMultiInvitation, request: CreateMultiInvitation.Request):
+async def create_multi_invitations(
+    create_organization: CreateBatchJoinOrganizationInvitationDep,
+    request: CreateBatchJoinOrganizationInvitationDep.Request,
+):
     return await create_organization.aexecute(request)
 
 
 @router.get(
     "",
-    response_model=GetInvitationsForReceiverDep.Response,
+    response_model=GetUserInvitationsDep.Response,
     response_description="Join Organization Invitations created",
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED,
 )
-async def get_invitations_for_receiver(create_organization: GetInvitationsForReceiverDep):
+async def get_invitations_for_receiver(create_organization: GetUserInvitationsDep):
     return await create_organization.aexecute()

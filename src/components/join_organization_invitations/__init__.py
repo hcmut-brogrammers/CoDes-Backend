@@ -3,13 +3,13 @@ from .create_batch_join_organization_invitations import (
     CreateBatchJoinOrganizationInvitationDep,
 )
 from .create_join_organization_invitation import CreateJoinOrganizationInvitation, CreateJoinOrganizationInvitationDep
-from .get_invitations_for_receiver import GetInvitationsForReceiver, GetInvitationsForReceiverDep
+from .get_user_invitations import GetUserInvitations, GetUserInvitationsDep
 
 __all__ = [
     "CreateJoinOrganizationInvitation",
     "CreateJoinOrganizationInvitationDep",
     "CreateBatchJoinOrganizationInvitation",
     "CreateBatchJoinOrganizationInvitationDep",
-    "GetInvitationsForReceiver",
-    "GetInvitationsForReceiverDep",
+    "GetUserInvitations",
+    "GetUserInvitationsDep",
 ]

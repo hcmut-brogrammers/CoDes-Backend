@@ -33,7 +33,7 @@ class SwitchOrganization(ISwitchOrganization):
         revoke_refresh_token: RevokeRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
-        get_organization: GetOrganizationByIdDep,
+        get_organization_by_id: GetOrganizationByIdDep,
         user_context: UserContextDep,
         refresh_access_token: RefreshAccessTokenDep,
     ) -> None:
@@ -43,7 +43,7 @@ class SwitchOrganization(ISwitchOrganization):
         self._db = db
         self._logger = logger
         self._refresh_token_collection = self._db.get_collection(CollectionName.REFRESH_TOKENS)
-        self._get_organization = get_organization
+        self._get_organization_by_id = get_organization_by_id
         self._user_context = user_context
         self._refresh_access_token = refresh_access_token
 
@@ -77,10 +77,15 @@ class SwitchOrganization(ISwitchOrganization):
             self._logger.error("Failed to revoke refresh token.")
             raise BadRequestError("Failed to revoke refresh token.")
 
-        get_organization_by_id_response = await self._get_organization.aexecute(
+        get_organization_by_id_response = await self._get_organization_by_id.aexecute(
             GetOrganizationByIdDep.Request(id=requested_organization_id)
         )
-        token_data = self._update_token_data(token_data, get_organization_by_id_response.organization)
+        requested_organization = get_organization_by_id_response.organization
+        if not requested_organization:
+            self._logger.error(f"Organization with id {requested_organization_id} not found.")
+            raise BadRequestError(f"Organization with id {requested_organization_id} not found.")
+
+        token_data = self._update_token_data(token_data, requested_organization)
         new_access_token = self._jwt_service.encode_jwt_token(token_data)
         create_refresh_token_request = CreateRefreshToken.Request(access_token=new_access_token)
         create_refresh_token_response = await self._create_refresh_token.aexecute(create_refresh_token_request)

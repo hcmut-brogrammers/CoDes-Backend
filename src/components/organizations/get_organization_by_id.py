@@ -6,8 +6,7 @@ from fastapi import Depends
 
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...exceptions import NotFoundError
+from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
 
@@ -23,19 +22,16 @@ class GetOrganizationById(IGetOrganizationById):
         id: UUID
 
     class Response(p.BaseModel):
-        organization: OrganizationModel
+        organization: OrganizationModel | None
 
-    async def aexecute(self, request: Request) -> "Response":
+    async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
         organization_id = request.id
         filter = {"_id": organization_id}
         organization_data = self._collection.find_one(filter)
 
         if not organization_data:
-            log_message = f"No organization with id {organization_id} is found."
-            error_message = f"No organization with is found."
-            self._logger.error(log_message)
-            raise NotFoundError(error_message)
+            return self.Response(organization=None)
 
         organization = OrganizationModel(**organization_data)
         return self.Response(organization=organization)

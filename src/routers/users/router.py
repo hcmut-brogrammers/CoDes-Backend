@@ -5,8 +5,9 @@ from fastapi import APIRouter, status
 from ...components.users import (
     CreateUserDep,
     DeleteUserByIdDep,
+    GetMe,
+    GetMeDep,
     GetUserByEmailFragmentDep,
-    GetUserByIdDep,
     UpdateUserDep,
 )
 from ...constants.router import ApiPath
@@ -18,14 +19,14 @@ router = APIRouter(
 
 
 @router.get(
-    "/{user_id}",
-    response_model=GetUserByIdDep.Response,
-    response_description="List of users",
+    "/me",
+    response_model=GetMe.Response,
+    response_description="Get current user info",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def get_users(get_users: GetUserByIdDep, user_id: UUID):
-    return await get_users.aexecute(GetUserByIdDep.Request(user_id=user_id))
+async def get_users(get_me: GetMeDep):
+    return await get_me.aexecute()
 
 
 @router.get(
