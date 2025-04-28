@@ -42,7 +42,7 @@ class JwtService:
             raise ValueError("Invalid JWT token payload.") from e
         except jwt.PyJWTError as e:
             self._logger.error(f"Error while decoding JWT token: {e}.")
-            raise ValueError("Error while decoing JWT token.") from e
+            raise ValueError("Error while decoding JWT token.") from e
         except Exception as e:
             self._logger.error(f"Invalid JWT token: {e}.")
             raise ValueError("Invalid JWT token.") from e
