@@ -42,8 +42,14 @@ class WrappedDatabase(Database):
         read_concern=None,
     ) -> SoftDeleteCollection | Collection:
 
+        raw_collection = super().get_collection(
+            name,
+            codec_options=codec_options,
+            read_preference=read_preference,
+            write_concern=write_concern,
+            read_concern=read_concern,
+        )
         if name in NON_SOFT_DELETE_COLLECTIONS:
-            return super().get_collection(name, codec_options)
+            return raw_collection
 
-        raw_collection = super().get_collection(name, codec_options)
         return SoftDeleteCollection(raw_collection)

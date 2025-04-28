@@ -4,12 +4,13 @@ from uuid import uuid4
 import pytest
 
 from ....common.auth import TokenData
-from ....common.models import UserModel, UserRole
+from ....common.models import OrganizationModel, UserModel, UserRole
 from ....components.authenticate import CreateRefreshToken, SignUp
+from ....components.organizations import CreateDefaultOrganization
 from ....components.users import CreateUser, GetUserByEmail
 from ....exceptions import BadRequestError
 
-MockSetUp = tuple[Mock, Mock, Mock, Mock, Mock, Mock, Mock]
+MockSetUp = tuple[Mock, Mock, Mock, Mock, Mock, Mock, Mock, Mock]
 
 
 @pytest.fixture
@@ -21,6 +22,7 @@ def mocks() -> MockSetUp:
     mock_db = Mock()
     mock_logger = Mock()
     mock_collection = Mock()
+    mock_create_default_organization = Mock()
 
     mock_db.configure_mock(get_collection=Mock(return_value=mock_collection))
     return (
@@ -31,6 +33,7 @@ def mocks() -> MockSetUp:
         mock_db,
         mock_logger,
         mock_collection,
+        mock_create_default_organization,
     )
 
 
@@ -45,6 +48,7 @@ class TestSignUp:
             mock_db,
             mock_logger,
             mock_collection,
+            mock_create_default_organization,
         ) = mocks
 
         mock_get_user_by_email.configure_mock(aexecute=AsyncMock(return_value=GetUserByEmail.Response(user=None)))
@@ -54,11 +58,20 @@ class TestSignUp:
             hashed_password="hashed_password",
             role=UserRole.OrganizationMember,
         )
+        created_organization = OrganizationModel(
+            name="name_default_org", avatar_url=None, owner_id=mock_current_user.id, is_default=True
+        )
+        mock_create_default_organization.configure_mock(
+            aexecute=AsyncMock(
+                return_value=CreateDefaultOrganization.Response(created_organization=created_organization)
+            )
+        )
         mock_user_token_data = TokenData(
             user_id=mock_current_user.id,
             username=mock_current_user.username,
             email=mock_current_user.email,
             role=mock_current_user.role,
+            organization_id=created_organization.id,
             sub=mock_current_user.username,
             exp=0,  # Convert datetime to UNIX timestamp
         )
@@ -84,6 +97,7 @@ class TestSignUp:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
+            create_default_organization=mock_create_default_organization,
         )
 
         sign_up_request = SignUp.Request(
@@ -94,10 +108,12 @@ class TestSignUp:
         )
         sign_up_response = await sign_up.aexecute(sign_up_request)
 
+        # Assertions
         assert sign_up_response is not None
         assert sign_up_response.access_token == mock_access_token
         assert sign_up_response.refresh_token_id == mock_refresh_token_id
 
+        # Verifications
         mock_get_user_by_email.aexecute.assert_called_once_with(GetUserByEmail.Request(email=sign_up_request.email))
         mock_jwt_service.hash.assert_called_once_with("password")
         mock_create_user.aexecute.assert_called_once_with(
@@ -108,7 +124,18 @@ class TestSignUp:
                 role=sign_up_request.role,
             )
         )
-        mock_jwt_service.create_user_token_data.assert_called_once_with(mock_current_user_response.created_user)
+
+        mock_create_default_organization.aexecute.assert_called_once_with(
+            CreateDefaultOrganization.Request(
+                owner_id=mock_current_user.id,
+                owner_name=mock_current_user.username,
+            )
+        )
+        mock_jwt_service.create_user_token_data.assert_called_once_with(
+            user=mock_current_user_response.created_user,
+            user_role=UserRole.OrganizationAdmin,
+            organization_id=created_organization.id,
+        )
         mock_jwt_service.encode_jwt_token.assert_called_once_with(mock_user_token_data)
         mock_create_refresh_token.aexecute.assert_called_once_with(
             CreateRefreshToken.Request(access_token=mock_access_token)
@@ -124,6 +151,7 @@ class TestSignUp:
             mock_db,
             mock_logger,
             mock_collection,
+            mock_create_default_organization,
         ) = mocks
 
         mock_existing_user = UserModel(
@@ -136,6 +164,8 @@ class TestSignUp:
             aexecute=AsyncMock(return_value=GetUserByEmail.Response(user=mock_existing_user))
         )
 
+        mock_create_default_organization.configure_mock()
+
         sign_up = SignUp(
             create_user=mock_create_user,
             get_user_by_email=mock_get_user_by_email,
@@ -143,6 +173,7 @@ class TestSignUp:
             create_refresh_token=mock_create_refresh_token,
             db=mock_db,
             logger=mock_logger,
+            create_default_organization=mock_create_default_organization,
         )
 
         sign_up_request = SignUp.Request(

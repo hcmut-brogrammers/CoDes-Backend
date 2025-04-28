@@ -3,11 +3,13 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
+from ...common.models.user import UserRole
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
 from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
+from ..organizations import GetDefaultOrganization, GetDefaultOrganizationDep
 from ..users import GetUserByEmail, GetUserByEmailDep
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
 from .sign_up import SignUp
@@ -23,12 +25,14 @@ class AuthenticateUser(IAuthenticateUser):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
+        get_default_organization: GetDefaultOrganizationDep,
     ) -> None:
         self._get_user_by_email = get_user_by_email
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._db = db
         self._logger = logger
+        self._get_default_organization = get_default_organization
 
     class Request(p.BaseModel):
         email: str
@@ -51,7 +55,14 @@ class AuthenticateUser(IAuthenticateUser):
             self._logger.error(f"Password for user {request.email} is incorrect.")
             raise BadRequestError(f"Password for user {request.email} is incorrect.")
 
-        token_data = self._jwt_service.create_user_token_data(current_user)
+        organization_owner_id = current_user.id
+        get_default_organization_response = await self._get_default_organization.aexecute(
+            GetDefaultOrganization.Request(owner_id=organization_owner_id)
+        )
+        default_organization = get_default_organization_response.organization
+        token_data = self._jwt_service.create_user_token_data(
+            user=current_user, user_role=UserRole.OrganizationAdmin, organization_id=default_organization.id
+        )
         access_token = self._jwt_service.encode_jwt_token(token_data)
 
         create_refresh_token_request = CreateRefreshToken.Request(access_token=access_token)

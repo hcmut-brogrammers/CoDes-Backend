@@ -37,4 +37,4 @@ class GetOrganizationsByOwnerId(IGetOrganizationsByOwnerId):
         return self.Response(organizations=organizations)
 
 
-GetOrganizationByOwnerIdDep = t.Annotated[GetOrganizationsByOwnerId, Depends()]
+GetOrganizationsByOwnerIdDep = t.Annotated[GetOrganizationsByOwnerId, Depends()]

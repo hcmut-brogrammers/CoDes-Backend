@@ -10,5 +10,6 @@ class TokenData(p.BaseModel):
     username: str
     email: str
     role: UserRole
+    organization_id: UUID
     sub: str
     exp: int

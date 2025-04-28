@@ -2,7 +2,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
-from ...components.users import CreateUserDep, DeleteUserByIdDep, GetUserByIdDep, UpdateUserDep
+from ...components.users import (
+    CreateUserDep,
+    DeleteUserByIdDep,
+    GetUserByEmailFragmentDep,
+    GetUserByIdDep,
+    UpdateUserDep,
+)
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -20,6 +26,17 @@ router = APIRouter(
 )
 async def get_users(get_users: GetUserByIdDep, user_id: UUID):
     return await get_users.aexecute(GetUserByIdDep.Request(user_id=user_id))
+
+
+@router.get(
+    "",
+    response_model=GetUserByEmailFragmentDep.Response,
+    response_description="List of users",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def get_users_by_email_fragment(get_users: GetUserByEmailFragmentDep, email: str):
+    return await get_users.aexecute(GetUserByEmailFragmentDep.Request(email_fragment=email))
 
 
 @router.post(

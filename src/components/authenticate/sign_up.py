@@ -5,12 +5,14 @@ import pydantic as p
 from fastapi import Depends
 
 from ...common.models import UserRole
+from ...common.models.user import UserModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
+from ..organizations import CreateDefaultOrganization, CreateDefaultOrganizationDep
 from ..users import CreateUser, CreateUserDep, GetUserByEmail, GetUserByEmailDep
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
 
@@ -26,6 +28,7 @@ class SignUp(ISignUp):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
+        create_default_organization: CreateDefaultOrganizationDep,
     ) -> None:
         self._create_user = create_user
         self._get_user_by_email = get_user_by_email
@@ -33,6 +36,7 @@ class SignUp(ISignUp):
         self._create_refresh_token = create_refresh_token
         self._collection = db.get_collection(CollectionName.USERS)
         self._logger = logger
+        self._create_default_organization = create_default_organization
 
     class Request(p.BaseModel):
         email: p.EmailStr
@@ -60,7 +64,17 @@ class SignUp(ISignUp):
             role=request.role,
         )
         create_user_response = await self._create_user.aexecute(create_user_request)
-        token_data = self._jwt_service.create_user_token_data(create_user_response.created_user)
+
+        created_user: UserModel = create_user_response.created_user
+        # CreateOrganizationDep handle when create default or non-default organization
+        create_default_organization_response = await self._create_default_organization.aexecute(
+            CreateDefaultOrganization.Request(owner_id=created_user.id, owner_name=created_user.username)
+        )
+        token_data = self._jwt_service.create_user_token_data(
+            user=create_user_response.created_user,
+            user_role=UserRole.OrganizationAdmin,
+            organization_id=create_default_organization_response.created_organization.id,
+        )
         access_token = self._jwt_service.encode_jwt_token(token_data)
 
         create_refresh_token_request = CreateRefreshToken.Request(access_token=access_token)
