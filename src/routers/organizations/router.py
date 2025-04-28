@@ -5,9 +5,10 @@ from fastapi import APIRouter, status
 from ...components.organizations import (
     CreateOrganizationDep,
     DeleteOrganizationByIdDep,
-    GetOrganizationByOwnerIdDep,
+    GetOrganizationsByOwnerIdDep,
     UpdateOrganizationDep,
 )
+from ...components.switch_organization import SwitchOrganization, SwitchOrganizationDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -18,12 +19,12 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=GetOrganizationByOwnerIdDep.Response,
+    response_model=GetOrganizationsByOwnerIdDep.Response,
     response_description="List of organizations",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def get_organizations_by_owner_id(get_organizations_by_owner_id: GetOrganizationByOwnerIdDep):
+async def get_organizations_by_owner_id(get_organizations_by_owner_id: GetOrganizationsByOwnerIdDep):
     return await get_organizations_by_owner_id.aexecute()
 
 
@@ -62,3 +63,17 @@ async def update_organization(
 )
 async def delete_organization_by_id(deleted_organization: DeleteOrganizationByIdDep, organization_id: UUID):
     return await deleted_organization.aexecute(DeleteOrganizationByIdDep.Request(organization_id=organization_id))
+
+
+@router.post(
+    ApiPath.SWITCH_ORGANIZATION,
+    response_model=SwitchOrganizationDep.Response,
+    response_description="re-generate access token for switching organizaiton successfully",
+    response_model_by_alias=False,
+    status_code=200,
+)
+async def regen_access_token_for_switching_organization(
+    regen_access_token: SwitchOrganizationDep,
+    request: SwitchOrganization.Request,
+):
+    return await regen_access_token.aexecute(request)
