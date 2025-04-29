@@ -4,10 +4,9 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from src.common.models.project import ProjectModel
-from src.common.models.user import UserRole
-
 from ...common.models import OrganizationModel
+from ...common.models.project import ProjectModel
+from ...common.models.user import UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, NotFoundError
@@ -64,7 +63,7 @@ class DeleteProjectById(IDeleteProjectById):
             raise NotFoundError(error_message)
 
         if current_project["organization_id"] is not organization_id:
-            log_message = f"Organizaiotn {organization_id} does not have the project {request.project_id}."
+            log_message = f"Organization {organization_id} does not have the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)

@@ -4,7 +4,7 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import OrganizationModel
+from ...common.models import ProjectModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...interfaces.base_component import IBaseComponentWithoutRequest
@@ -20,14 +20,14 @@ class GetProjectsByOrganizationId(IGetProjectsByOrganizationId):
         self._user_context = user_context
 
     class Response(p.BaseModel):
-        projects: t.List["OrganizationModel"]
+        projects: t.List["ProjectModel"]
 
     async def aexecute(self) -> "Response":
         self._logger.info(execute_service_method(self))
         filter = {"organization_id": self._user_context.organization_id}
         projects_data = self._collection.find(filter)
 
-        projects = [OrganizationModel(**project) for project in projects_data]
+        projects = [ProjectModel(**project) for project in projects_data]
         return self.Response(projects=projects)
 
 

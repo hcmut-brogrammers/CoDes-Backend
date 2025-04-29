@@ -68,7 +68,7 @@ class UpdateProject(IUpdateProject):
             raise NotFoundError(error_message)
 
         if current_project["organization_id"] is not organization_id:
-            log_message = f"Organizaiotn {organization_id} does not have the project {request.project_id}."
+            log_message = f"Organization {organization_id} does not have the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
