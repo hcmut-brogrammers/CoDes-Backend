@@ -4,7 +4,7 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models.project import DesignProjectModel
+from ...common.models.design_project import DesignProjectModel
 from ...common.models.user import UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep

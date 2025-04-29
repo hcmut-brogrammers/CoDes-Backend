@@ -12,7 +12,7 @@ from ...constants.router import ApiPath
 
 router = APIRouter(
     prefix=ApiPath.DESIGN_PROJECTS,
-    tags=["design projects"],
+    tags=["design-projects"],
 )
 
 
