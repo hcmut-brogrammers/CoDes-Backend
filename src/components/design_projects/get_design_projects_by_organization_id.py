@@ -20,7 +20,7 @@ class GetDesignProjectsByOrganizationId(IGetDesignProjectsByOrganizationId):
         self._user_context = user_context
 
     class Response(p.BaseModel):
-        projects: t.List["DesignProjectModel"]
+        projects: t.List[DesignProjectModel]
 
     async def aexecute(self) -> "Response":
         self._logger.info(execute_service_method(self))
