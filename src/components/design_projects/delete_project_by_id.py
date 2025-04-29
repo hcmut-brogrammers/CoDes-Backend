@@ -56,13 +56,13 @@ class DeleteProjectById(IDeleteProjectById):
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        if current_project["owner_id"] is not user_id:
+        if current_project["owner_id"] != user_id:
             log_message = f"User {user_id} is not the owner of the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        if current_project["organization_id"] is not organization_id:
+        if current_project["organization_id"] != organization_id:
             log_message = f"Organization {organization_id} does not have the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
