@@ -1,3 +1,4 @@
+from .design_project import DesignProjectModel
 from .join_organization_invitation import InviteeAction, JoinOrganizationInvitationModel, Status, TakenAction
 from .organization import OrganizationModel
 from .refresh_token import RefreshTokenModel
@@ -14,4 +15,5 @@ __all__ = [
     "Status",
     "InviteeAction",
     "TakenAction",
+    "DesignProjectModel",
 ]
