@@ -46,8 +46,10 @@ async def create_project(create_project: CreateProjectDep, request: CreateProjec
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def update_project(update_project: UpdateProjectDep, project_id: UUID, request: UpdateProjectDep.HttpRequest):
-    return await update_project.aexecute(UpdateProjectDep.Request(project_id=project_id, **request.model_dump()))
+async def update_project_by_id(
+    update_project_by_id: UpdateProjectDep, project_id: UUID, request: UpdateProjectDep.HttpRequest
+):
+    return await update_project_by_id.aexecute(UpdateProjectDep.Request(project_id=project_id, **request.model_dump()))
 
 
 @router.delete(
@@ -57,5 +59,5 @@ async def update_project(update_project: UpdateProjectDep, project_id: UUID, req
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_organization_by_id(deleted_organization: DeleteProjectByIdDep, project_id: UUID):
-    return await deleted_organization.aexecute(DeleteProjectByIdDep.Request(project_id=project_id))
+async def delete_project_by_id(deleted_project: DeleteProjectByIdDep, project_id: UUID):
+    return await deleted_project.aexecute(DeleteProjectByIdDep.Request(project_id=project_id))
