@@ -18,3 +18,4 @@ class ApiPath:
     ORGANIZATIONS = "/organizations"
     TESTS = "/tests"
     JOIN_WORKSPACE_INVITATIONS = "/join-workspace-invitations"
+    PROJECTS = "/projects"
