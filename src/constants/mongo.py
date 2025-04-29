@@ -8,4 +8,4 @@ class CollectionName:
     REFRESH_TOKENS: str = "refresh_tokens"
     ORGANIZATIONS: str = "organizations"
     JOIN_ORGANIZATION_INVITATIONS: str = "join_organization_invitations"
-    PROJECTS: str = "projects"
+    DESIGN_PROJECTS: str = "design_projects"

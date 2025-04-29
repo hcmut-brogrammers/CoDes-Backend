@@ -1,15 +1,18 @@
-from .create_project import CreateProject, CreateProjectDep
-from .delete_project_by_id import DeleteProjectById, DeleteProjectByIdDep
-from .get_projects_by_organization_id import GetProjectsByOrganizationId, GetProjectsByOrganizationIdDep
-from .update_project_by_id import UpdateProject, UpdateProjectDep
+from .create_design_project import CreateDesignProject, CreateDesignProjectDep
+from .delete_design_project_by_id import DeleteDesignProjectById, DeleteDesignProjectByIdDep
+from .get_design_projects_by_organization_id import (
+    GetDesignProjectsByOrganizationId,
+    GetDesignProjectsByOrganizationIdDep,
+)
+from .update_design_project_by_id import UpdateDesignProject, UpdateDesignProjectDep
 
 __all__ = [
-    "CreateProjectDep",
-    "CreateProject",
-    "GetProjectsByOrganizationIdDep",
-    "GetProjectsByOrganizationId",
-    "UpdateProject",
-    "UpdateProjectDep",
-    "DeleteProjectById",
-    "DeleteProjectByIdDep",
+    "CreateDesignProjectDep",
+    "CreateDesignProject",
+    "GetDesignProjectsByOrganizationIdDep",
+    "GetDesignProjectsByOrganizationId",
+    "UpdateDesignProject",
+    "UpdateDesignProjectDep",
+    "DeleteDesignProjectById",
+    "DeleteDesignProjectByIdDep",
 ]

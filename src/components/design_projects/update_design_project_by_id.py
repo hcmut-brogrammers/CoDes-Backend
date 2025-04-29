@@ -4,8 +4,7 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import OrganizationModel
-from ...common.models.project import ProjectModel
+from ...common.models.project import DesignProjectModel
 from ...common.models.user import UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
@@ -14,20 +13,24 @@ from ...interfaces.base_component import IBaseComponent
 from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 
-IDeleteProjectById = IBaseComponent["DeleteProjectById.Request", "DeleteProjectById.Response"]
+IUpdateDesignProject = IBaseComponent["UpdateDesignProject.Request", "UpdateDesignProject.Response"]
 
 
-class DeleteProjectById(IDeleteProjectById):
+class UpdateDesignProject(IUpdateDesignProject):
     def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
-        self._collection = db.get_collection(CollectionName.PROJECTS)
+        self._collection = db.get_collection(CollectionName.DESIGN_PROJECTS)
         self._logger = logger
         self._user_context = user_context
 
-    class Request(p.BaseModel):
+    class HttpRequest(p.BaseModel):
+        name: str | None = None
+        thumbnail_url: p.HttpUrl | None = None
+
+    class Request(HttpRequest, p.BaseModel):
         project_id: UUID
 
     class Response(p.BaseModel):
-        deleted_project: ProjectModel
+        updated_organization: DesignProjectModel
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
@@ -40,43 +43,50 @@ class DeleteProjectById(IDeleteProjectById):
             self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
             raise BadRequestError("User is not the owner of the organization")
 
-        # handle the case when no project id is provided
-        if not request.project_id:
-            error_message = f"Request does not have the project id. Delete request is denied."
+        update_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
+
+        # handle the case when no fields are provided for update
+        if not update_data:
+            error_message = f"No fields to update for project id {request.project_id}."
             self._logger.info(error_message)
             raise BadRequestError(error_message)
 
         # before update condition check
         filter = {"_id": request.project_id}
-        current_project = self._collection.find_one(filter)
+        project_data = self._collection.find_one(filter)
 
-        if current_project is None:
+        if project_data is None:
             log_message = f"Project with id {request.project_id} not found."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        if current_project["owner_id"] != user_id:
+        # prepare project instance
+        updated_project = DesignProjectModel(**project_data).model_copy()
+
+        if updated_project.owner_id != user_id:
             log_message = f"User {user_id} is not the owner of the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        if current_project["organization_id"] != organization_id:
+        if updated_project.organization_id != organization_id:
             log_message = f"Organization {organization_id} does not have the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
         # process update
-        deleted_project = ProjectModel(**current_project).model_copy()
-        deleted_project.is_deleted = True
-        deleted_project.deleted_at = get_utc_now()
+        if request.name:
+            updated_project.name = request.name
+        if request.thumbnail_url:
+            updated_project.thumbnail_url = str(request.thumbnail_url)
+        updated_project.updated_at = get_utc_now()
 
-        self._collection.update_one({"_id": deleted_project.id}, {"$set": deleted_project.model_dump(exclude={"id"})})
+        self._collection.update_one({"_id": updated_project.id}, {"$set": updated_project.model_dump(exclude={"id"})})
 
         # process response
-        return self.Response(deleted_project=deleted_project)
+        return self.Response(updated_organization=updated_project)
 
 
-DeleteProjectByIdDep = t.Annotated[DeleteProjectById, Depends()]
+UpdateDesignProjectDep = t.Annotated[UpdateDesignProject, Depends()]

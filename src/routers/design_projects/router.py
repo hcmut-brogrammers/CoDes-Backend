@@ -3,61 +3,64 @@ from uuid import UUID
 from fastapi import APIRouter, status
 
 from ...components.design_projects import (
-    CreateProjectDep,
-    DeleteProjectByIdDep,
-    GetProjectsByOrganizationIdDep,
-    UpdateProjectDep,
+    CreateDesignProjectDep,
+    DeleteDesignProjectByIdDep,
+    GetDesignProjectsByOrganizationIdDep,
+    UpdateDesignProjectDep,
 )
-from ...components.switch_organization import SwitchOrganization, SwitchOrganizationDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
-    prefix=ApiPath.PROJECTS,
-    tags=["projects"],
+    prefix=ApiPath.DESIGN_PROJECTS,
+    tags=["design projects"],
 )
 
 
 @router.get(
     "",
-    response_model=GetProjectsByOrganizationIdDep.Response,
-    response_description="List of projects",
+    response_model=GetDesignProjectsByOrganizationIdDep.Response,
+    response_description="List of design projects",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def get_projects_by_organization_id(get_projects_by_organization_id: GetProjectsByOrganizationIdDep):
-    return await get_projects_by_organization_id.aexecute()
+async def get_design_projects_by_organization_id(
+    get_design_projects_by_organization_id: GetDesignProjectsByOrganizationIdDep,
+):
+    return await get_design_projects_by_organization_id.aexecute()
 
 
 @router.post(
     "",
-    response_model=CreateProjectDep.Response,
+    response_model=CreateDesignProjectDep.Response,
     response_description="Project created",
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_project(create_project: CreateProjectDep, request: CreateProjectDep.Request):
-    return await create_project.aexecute(request)
+async def create_design_project(create_design_project: CreateDesignProjectDep, request: CreateDesignProjectDep.Request):
+    return await create_design_project.aexecute(request)
 
 
 @router.put(
     "/{project_id}",
-    response_model=UpdateProjectDep.Response,
+    response_model=UpdateDesignProjectDep.Response,
     response_description="Project updated",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def update_project_by_id(
-    update_project_by_id: UpdateProjectDep, project_id: UUID, request: UpdateProjectDep.HttpRequest
+async def update_design_project_by_id(
+    update_design_project_by_id: UpdateDesignProjectDep, project_id: UUID, request: UpdateDesignProjectDep.HttpRequest
 ):
-    return await update_project_by_id.aexecute(UpdateProjectDep.Request(project_id=project_id, **request.model_dump()))
+    return await update_design_project_by_id.aexecute(
+        UpdateDesignProjectDep.Request(project_id=project_id, **request.model_dump())
+    )
 
 
 @router.delete(
     "/{project_id}",
-    response_model=DeleteProjectByIdDep.Response,
+    response_model=DeleteDesignProjectByIdDep.Response,
     response_description="Project deleted",
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_project_by_id(deleted_project: DeleteProjectByIdDep, project_id: UUID):
-    return await deleted_project.aexecute(DeleteProjectByIdDep.Request(project_id=project_id))
+async def delete_design_project_by_id(delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: UUID):
+    return await delete_design_project_by_id.aexecute(DeleteDesignProjectByIdDep.Request(project_id=project_id))
