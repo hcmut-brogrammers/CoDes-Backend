@@ -38,3 +38,14 @@ class GlobalCompositeOperationType(str, Enum):
 class Vector2d(p.BaseModel):
     x: float | None = p.Field(alias="x", default=None)
     y: float | None = p.Field(alias="y", default=None)
+
+
+class HTMLImageElement(p.BaseModel):
+    src: PyObjectHttpUrlStr | None = p(alias="src", default=None)
+    alt: str | None = p(alias="alt", default=None)
+    width: int | None = p(alias="width", default=None)
+    height: int | None = p(alias="height", default=None)
+    naturalWidth: int | None = p(alias="naturalWidth", default=None)
+    naturalHeight: int | None = p(alias="naturalHeight", default=None)
+    complete: bool | None = p(alias="complete", default=None)
+    crossOrigin: str | None = p(alias="crossOrigin", default=None)
