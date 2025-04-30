@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
+from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import NotFoundError
 from ...interfaces.base_component import IBaseComponent
 from ...utils.logger import execute_service_method
