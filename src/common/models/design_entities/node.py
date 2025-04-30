@@ -1,85 +1,43 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any, Callable, Dict, List, Literal, TypeAlias
 
 # Assuming p is an alias for pydantic
 import pydantic as p
 from pydantic import BaseModel
-from pydantic import Field as pField
 
-# Define GlobalCompositeOperationType as a type alias
-GlobalCompositeOperationType: TypeAlias = Literal[
-    "",
-    "source-over",
-    "source-in",
-    "source-out",
-    "source-atop",
-    "destination-over",
-    "destination-in",
-    "destination-out",
-    "destination-atop",
-    "lighter",
-    "copy",
-    "xor",
-    "multiply",
-    "screen",
-    "overlay",
-    "darken",
-    "lighten",
-    "color-dodge",
-    "color-burn",
-    "hard-light",
-    "soft-light",
-    "difference",
-    "exclusion",
-    "hue",
-    "saturation",
-    "color",
-    "luminosity",
-]
+from ....common.design_entities.type import GlobalCompositeOperationType, Vector2d
+from ....common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
 
 
-@dataclass
-class Vector2d:
-    x: float
-    y: float
-
-
-class Filter:
-    pass  # Placeholder for Filter class, implement as needed
-
-
-class NodeModel(BaseModel):
-    x: float | None = pField(default=None, alias="x")
-    y: float | None = pField(default=None, alias="y")
-    width: float | None = pField(default=None, alias="width")
-    height: float | None = pField(default=None, alias="height")
-    visible: bool | None = pField(default=None, alias="visible")
-    listening: bool | None = pField(default=None, alias="listening")
-    # _id: str | None = pField(default=None, alias="id")
-    name: str | None = pField(default=None, alias="name")
-    opacity: float | None = pField(default=None, alias="opacity")
-    scale: Vector2d | None = pField(default=None, alias="scale")
-    scaleX: float | None = pField(default=None, alias="scaleX")
-    skewX: float | None = pField(default=None, alias="skewX")
-    skewY: float | None = pField(default=None, alias="skewY")
-    scaleY: float | None = pField(default=None, alias="scaleY")
-    rotation: float | None = pField(default=None, alias="rotation")
-    rotationDeg: float | None = pField(default=None, alias="rotationDeg")
-    offset: Vector2d | None = pField(default=None, alias="offset")
-    offsetX: float | None = pField(default=None, alias="offsetX")
-    offsetY: float | None = pField(default=None, alias="offsetY")
-    draggable: bool | None = pField(default=None, alias="draggable")
-    dragDistance: float | None = pField(default=None, alias="dragDistance")
-    dragBoundFunc: Callable[[Vector2d], Vector2d] | None = pField(default=None, alias="dragBoundFunc")
-    preventDefault: bool | None = pField(default=None, alias="preventDefault")
-    globalCompositeOperation: GlobalCompositeOperationType | None = pField(
+class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+    x: float | None = p.Field(default=None, alias="x")
+    y: float | None = p.Field(default=None, alias="y")
+    width: float | None = p.Field(default=None, alias="width")
+    height: float | None = p.Field(default=None, alias="height")
+    visible: bool | None = p.Field(default=None, alias="visible")
+    listening: bool | None = p.Field(default=None, alias="listening")
+    # _id: str | None = p.Field(default=None, alias="id")
+    name: str | None = p.Field(default=None, alias="name")
+    opacity: float | None = p.Field(default=None, alias="opacity")
+    scale: Vector2d | None = p.Field(default=None, alias="scale")
+    scaleX: float | None = p.Field(default=None, alias="scaleX")
+    skewX: float | None = p.Field(default=None, alias="skewX")
+    skewY: float | None = p.Field(default=None, alias="skewY")
+    scaleY: float | None = p.Field(default=None, alias="scaleY")
+    rotation: float | None = p.Field(default=None, alias="rotation")
+    rotationDeg: float | None = p.Field(default=None, alias="rotationDeg")
+    offset: Vector2d | None = p.Field(default=None, alias="offset")
+    offsetX: float | None = p.Field(default=None, alias="offsetX")
+    offsetY: float | None = p.Field(default=None, alias="offsetY")
+    draggable: bool | None = p.Field(default=None, alias="draggable")
+    dragDistance: float | None = p.Field(default=None, alias="dragDistance")
+    # dragBoundFunc: Callable[[Vector2d], Vector2d] | None = p.Field(default=None, alias="dragBoundFunc")
+    preventDefault: bool | None = p.Field(default=None, alias="preventDefault")
+    globalCompositeOperation: GlobalCompositeOperationType | None = p.Field(
         default=None, alias="globalCompositeOperation"
     )
-    filters: List[Filter] | None = pField(default=None, alias="filters")
-
-    class Config:
-        arbitrary_types_allowed = True
-        extra = "allow"
+    # filters: List[Filter] | None = p.Field(default=None, alias="filters")
 
 
 # https://github.com/konvajs/konva/blob/master/src/Node.ts#L18
