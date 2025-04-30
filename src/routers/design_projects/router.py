@@ -9,6 +9,7 @@ from ...components.design_projects import (
     UpdateDesignProjectDep,
 )
 from ...components.design_projects.design_entities.nodes.create_node import CreateNodeDep
+from ...components.design_projects.design_entities.shapes.create_shape import CreateShapeDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -77,3 +78,14 @@ async def delete_design_project_by_id(delete_design_project_by_id: DeleteDesignP
 )
 async def create_node(create_node: CreateNodeDep, project_id: UUID, request: CreateNodeDep.HttpRequest):
     return await create_node.aexecute(CreateNodeDep.Request(project_id=project_id, **request.model_dump()))
+
+
+@router.post(
+    "/{project_id}" + ApiPath.SHAPES,
+    response_model=CreateShapeDep.Response,
+    response_description="create shape in a project",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def create_shape(create_shape: CreateShapeDep, project_id: UUID, request: CreateShapeDep.HttpRequest):
+    return await create_shape.aexecute(CreateShapeDep.Request(project_id=project_id, **request.model_dump()))
