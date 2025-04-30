@@ -19,3 +19,5 @@ class ApiPath:
     TESTS = "/tests"
     JOIN_WORKSPACE_INVITATIONS = "/join-workspace-invitations"
     DESIGN_PROJECTS = "/design-projects"
+
+    NODES = "/nodes"

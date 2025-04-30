@@ -8,6 +8,7 @@ from ...components.design_projects import (
     GetDesignProjectsByOrganizationIdDep,
     UpdateDesignProjectDep,
 )
+from ...components.design_projects.design_entities.nodes.create_node import CreateNodeDep
 from ...constants.router import ApiPath
 
 router = APIRouter(
@@ -64,3 +65,15 @@ async def update_design_project_by_id(
 )
 async def delete_design_project_by_id(delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: UUID):
     return await delete_design_project_by_id.aexecute(DeleteDesignProjectByIdDep.Request(project_id=project_id))
+
+
+# [?] method: put or post?
+@router.post(
+    "/{project_id}" + ApiPath.NODES,
+    response_model=CreateNodeDep.Response,
+    response_description="create node in a project",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def create_node(create_node: CreateNodeDep, project_id: UUID, request: CreateNodeDep.HttpRequest):
+    return await create_node.aexecute(CreateNodeDep.Request(project_id=project_id, **request.model_dump()))

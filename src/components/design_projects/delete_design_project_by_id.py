@@ -49,9 +49,16 @@ class DeleteDesignProjectById(IDeleteDesignProjectById):
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        # prepare project instance
+        # check if the user have joined the organization yet
         deleted_project = DesignProjectModel(**project_data).model_copy()
 
+        if deleted_project.organization_id != organization_id:
+            log_message = f"User have no permission to delete the project {request.project_id}."
+            error_message = f"User have no permission to delete the project."
+            self._logger.error(log_message)
+            raise BadRequestError(error_message)
+
+        # prepare project instance
         if deleted_project.owner_id != user_id:
             log_message = f"User {user_id} is not the owner of the project {request.project_id}."
             error_message = f"Project not found."
