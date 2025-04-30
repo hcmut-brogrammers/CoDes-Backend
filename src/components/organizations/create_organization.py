@@ -2,7 +2,7 @@ import typing as t
 
 import pydantic as p
 from fastapi import Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from ...common.models import OrganizationModel
 from ...common.models.base import PyObjectHttpUrlStr
@@ -22,8 +22,8 @@ class CreateOrganization(ICreateOrganization):
         self._user_context = user_context
 
     class Request(BaseModel):
-        name: str = Field(default="Default Organization")
-        avatar_url: PyObjectHttpUrlStr | None = Field(default=None)
+        name: str = p.Field(default="Default Organization")
+        avatar_url: PyObjectHttpUrlStr | None = p.Field(default=None)
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
