@@ -5,6 +5,8 @@ from fastapi import APIRouter, status
 from ...components.organizations import (
     CreateOrganizationDep,
     DeleteOrganizationByIdDep,
+    GetOrganizationById,
+    GetOrganizationByIdDep,
     GetOrganizationsByOwnerIdDep,
     UpdateOrganizationDep,
 )
@@ -26,6 +28,17 @@ router = APIRouter(
 )
 async def get_organizations_by_owner_id(get_organizations_by_owner_id: GetOrganizationsByOwnerIdDep):
     return await get_organizations_by_owner_id.aexecute()
+
+
+@router.get(
+    "/{organization_id}",
+    response_model=GetOrganizationByIdDep.Response,
+    response_description="Organization found",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def get_organization_by_id(get_organization_by_id: GetOrganizationByIdDep, organization_id: UUID):
+    return await get_organization_by_id.aexecute(GetOrganizationById.Request(id=organization_id))
 
 
 @router.post(
