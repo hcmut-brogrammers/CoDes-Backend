@@ -21,3 +21,4 @@ class ApiPath:
     DESIGN_PROJECTS = "/design-projects"
 
     NODES = "/nodes"
+    SHAPES = "/shapes"

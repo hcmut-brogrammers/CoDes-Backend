@@ -2,14 +2,17 @@ from typing import Union
 
 import pydantic as p
 
-from src.common.design_entities.type import Vector2d
-from src.common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
-from src.common.models.design_entities.node import NodeModel
+from ....common.design_entities.type import HTMLImageElement, ShapeType, Vector2d
+from ....common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
+from ....common.models.design_entities.node import NodeModel
 
 
 class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+    shapeType: ShapeType | None = p.Field(default=None, alias="shapeType")
     fill: str | None = p.Field(default=None, alias="fill")
-    # fillPatternImage: HTMLImageElement
+    fillPatternImage: HTMLImageElement | None = p.Field(
+        default=None, alias="fillPatternImage"
+    )  # Representing as URL or image name
     fillPatternX: float | None = p.Field(default=None, alias="fillPatternX")
     fillPatternY: float | None = p.Field(default=None, alias="fillPatternY")
     fillPatternOffset: Vector2d | None = p.Field(default=None, alias="fillPatternOffset")
@@ -38,7 +41,7 @@ class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, Base
     fillRadialGradientColorStops: list[str | float] | None = p.Field(default=None, alias="fillRadialGradientColorStops")
     fillEnabled: bool | None = p.Field(default=None, alias="fillEnabled")
     fillPriority: str | None = p.Field(default=None, alias="fillPriority")
-    fillRule: str | None = p.Field(default=None, alias="fillRule")  # CanvasFillRule
+    fillRule: str | None = p.Field(default=None, alias="fillRule")  # CanvasFillRule # e.g., 'nonzero' or 'evenodd'
     stroke: str | None = p.Field(default=None, alias="stroke")
     strokeWidth: float | None = p.Field(default=None, alias="strokeWidth")
     fillAfterStrokeEnabled: bool | None = p.Field(default=None, alias="fillAfterStrokeEnabled")
@@ -46,8 +49,8 @@ class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, Base
     strokeScaleEnabled: bool | None = p.Field(default=None, alias="strokeScaleEnabled")
     strokeHitEnabled: bool | None = p.Field(default=None, alias="strokeHitEnabled")
     strokeEnabled: bool | None = p.Field(default=None, alias="strokeEnabled")
-    lineJoin: str | None = p.Field(default=None, alias="lineJoin")  # LineJoin
-    lineCap: str | None = p.Field(default=None, alias="lineCap")  # LineCap
+    lineJoin: str | None = p.Field(default=None, alias="lineJoin")  # LineJoin # "miter" | "round" | "bevel"
+    lineCap: str | None = p.Field(default=None, alias="lineCap")  # LineCap # "butt" | "round" | "square"
     # sceneFunc: Callable[[Context, Shape], None]
     # hitFunc: Callable[[Context, Shape], None]
     shadowColor: str | None = p.Field(default=None, alias="shadowColor")

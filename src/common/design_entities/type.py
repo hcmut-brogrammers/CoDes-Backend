@@ -3,6 +3,10 @@ from enum import Enum
 
 import pydantic as p
 
+from ...common.models.base import PyObjectHttpUrlStr
+
+"""------------------------------NodeModel------------------------------"""
+
 
 class GlobalCompositeOperationType(str, Enum):
     EMPTY = ""
@@ -34,18 +38,31 @@ class GlobalCompositeOperationType(str, Enum):
     Luminosity = "luminosity"
 
 
-# @dataclass
 class Vector2d(p.BaseModel):
     x: float | None = p.Field(alias="x", default=None)
     y: float | None = p.Field(alias="y", default=None)
 
 
+"""------------------------------ShapeModel------------------------------"""
+
+
 class HTMLImageElement(p.BaseModel):
-    src: PyObjectHttpUrlStr | None = p(alias="src", default=None)
-    alt: str | None = p(alias="alt", default=None)
-    width: int | None = p(alias="width", default=None)
-    height: int | None = p(alias="height", default=None)
-    naturalWidth: int | None = p(alias="naturalWidth", default=None)
-    naturalHeight: int | None = p(alias="naturalHeight", default=None)
-    complete: bool | None = p(alias="complete", default=None)
-    crossOrigin: str | None = p(alias="crossOrigin", default=None)
+    # src: PyObjectHttpUrlStr | None = p.Field(alias="src", default=None)
+    src: str | None = p.Field(alias="src", default=None)
+    alt: str | None = p.Field(alias="alt", default=None)
+    width: int | None = p.Field(alias="width", default=None)
+    height: int | None = p.Field(alias="height", default=None)
+    naturalWidth: int | None = p.Field(alias="naturalWidth", default=None)
+    naturalHeight: int | None = p.Field(alias="naturalHeight", default=None)
+    complete: bool | None = p.Field(alias="complete", default=None)
+    crossOrigin: str | None = p.Field(alias="crossOrigin", default=None)
+    # https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement
+
+
+class ShapeType(str, Enum):
+    Circle = "Circle"
+    Rect = "Rect"
+    RegularPolygon = "Regular-Polygon"
+    Line = "Line"
+    Text = "Text"
+    Image = "Image"
