@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated
+from urllib.parse import urlparse
 from uuid import UUID
 
 import pydantic as p
@@ -25,6 +26,16 @@ def validate_datetime(value: datetime | str) -> datetime:
     return value
 
 
+def is_http_url(value: str | None) -> str | None:
+    if value is None:
+        return value
+    parsed = urlparse(value)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise ValueError("avatar_url must be a valid HTTP or HTTPS URL")
+    return value
+
+
+PyObjectHttpUrlStr = Annotated[str, p.BeforeValidator(is_http_url)]
 PyObjectUUID = Annotated[UUID, p.BeforeValidator(validate_uuid)]
 PyObjectDatetime = Annotated[datetime, p.BeforeValidator(validate_datetime)]
 
