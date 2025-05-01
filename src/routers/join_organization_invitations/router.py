@@ -1,12 +1,10 @@
-from uuid import UUID
-
 from fastapi import APIRouter, status
 
 from ...components.join_workspace_invitations import CreateBatchJoinOrganizationInvitationDep as CreateMultiInvitation
 from ...constants.router import ApiPath
 
 router = APIRouter(
-    prefix=ApiPath.JOIN_WORKSPACE_INVITATIONS,
+    prefix=ApiPath.JOIN_ORGANIZATION_INVITATIONS,
     tags=["join-workspace-invitations"],
 )
 
