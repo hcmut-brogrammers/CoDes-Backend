@@ -23,7 +23,7 @@ class CreateNode(ICreateNode):
         self._logger = logger
         self._user_context = user_context
 
-    class HttpRequest(p.BaseModel):
+    class BaseHttpRequest:
         x: float | None = p.Field(default=None)
         y: float | None = p.Field(default=None)
         width: float | None = p.Field(default=None)
@@ -47,7 +47,10 @@ class CreateNode(ICreateNode):
         preventDefault: bool | None = p.Field(default=None)
         globalCompositeOperation: GlobalCompositeOperationType | None = p.Field(default=None)
 
-    class Request(HttpRequest, p.BaseModel):
+    class HttpRequest(BaseHttpRequest, p.BaseModel):
+        pass
+
+    class Request(BaseHttpRequest, p.BaseModel):
         project_id: UUID
 
     class Response(p.BaseModel):
@@ -74,8 +77,8 @@ class CreateNode(ICreateNode):
             self._logger.error(log_message)
             raise BadRequestError(error_message)
 
-        create_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
         # process create organization
+        create_data = request.model_dump(by_alias=True, exclude={"project_id"}, exclude_none=True)
         node = NodeModel(**create_data)
 
         # current_project.nodes.append(node)

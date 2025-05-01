@@ -24,7 +24,7 @@ class CreateShape(ICreateShape):
         self._logger = logger
         self._user_context = user_context
 
-    class HttpRequest(CreateNode.HttpRequest):
+    class BaseHttpRequest(CreateNode.BaseHttpRequest):
         shapeType: ShapeType | None = p.Field(default=None)
         fill: str | None = p.Field(default=None)
         fillPatternImage: HTMLImageElement | None = p.Field(default=None)  # Representing as URL or image name
@@ -81,7 +81,10 @@ class CreateShape(ICreateShape):
         dashEnabled: bool | None = p.Field(default=None)
         perfectDrawEnabled: bool | None = p.Field(default=None)
 
-    class Request(HttpRequest, p.BaseModel):
+    class HttpRequest(BaseHttpRequest, p.BaseModel):
+        pass
+
+    class Request(BaseHttpRequest, p.BaseModel):
         project_id: UUID
 
     class Response(p.BaseModel):
@@ -110,15 +113,15 @@ class CreateShape(ICreateShape):
 
         create_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
         # process create organization
-        node = ShapeModel(**create_data)
+        shape = ShapeModel(**create_data)
 
         # current_project.nodes.append(node)
-        current_project.nodes.insert(0, node)
+        current_project.nodes.insert(0, shape)
         self._collection.update_one(
             {"_id": project_id}, {"$set": current_project.model_dump(exclude={"id"}, exclude_none=True)}
         )
 
-        return self.Response(created_shape=node)
+        return self.Response(created_shape=shape)
 
 
 CreateShapeDep = t.Annotated[CreateShape, Depends()]

@@ -8,7 +8,9 @@ from ....common.models.design_entities.node import NodeModel
 
 
 class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+    # extra properties for Shape
     shapeType: ShapeType | None = p.Field(default=None, alias="shapeType")
+
     fill: str | None = p.Field(default=None, alias="fill")
     fillPatternImage: HTMLImageElement | None = p.Field(
         default=None, alias="fillPatternImage"
