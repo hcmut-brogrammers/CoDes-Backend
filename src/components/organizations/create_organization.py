@@ -2,9 +2,10 @@ import typing as t
 
 import pydantic as p
 from fastapi import Depends
-from pymongo.cursor import Cursor
+from pydantic import BaseModel
 
 from ...common.models import OrganizationModel
+from ...common.models.base import PyObjectHttpUrlStr
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import InternalServerError
@@ -20,9 +21,9 @@ class CreateOrganization(ICreateOrganization):
         self._logger = logger
         self._user_context = user_context
 
-    class Request(p.BaseModel):
+    class Request(BaseModel):
         name: str = p.Field(default="Default Organization")
-        avatar_url: p.HttpUrl | None = None
+        avatar_url: PyObjectHttpUrlStr | None = p.Field(default=None)
 
     class Response(p.BaseModel):
         created_organization: OrganizationModel
@@ -37,14 +38,15 @@ class CreateOrganization(ICreateOrganization):
         }
         organization_data = self._collection.find_one(filter)
 
-        # process create organization
+        request_data = request.model_dump(exclude_none=True)
+        # process create
         organization = OrganizationModel(
-            name=request.name,
-            avatar_url=str(request.avatar_url),
+            **request_data,
             owner_id=self._user_context.user_id,
             is_default=True if not organization_data else False,
         )
-        organization_data = organization.model_dump(by_alias=True)
+
+        organization_data = organization.model_dump(by_alias=True, exclude_none=True)
         inserted_organization = self._collection.insert_one(organization_data)
         created_organization = self._collection.find_one({"_id": inserted_organization.inserted_id})
         if not created_organization:
