@@ -28,10 +28,10 @@ def find_index_and_value(x, lst, func):
     return None, None
 
 
-IUpdateNode = IBaseComponent["UpdateNode.Request", "UpdateNode.Response"]
+IUpdateShape = IBaseComponent["UpdateShape.Request", "UpdateShape.Response"]
 
 
-class UpdateNode(IUpdateNode):
+class UpdateShape(IUpdateShape):
     def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
         self._collection = db.get_collection(CollectionName.DESIGN_PROJECTS)
         self._logger = logger
@@ -39,7 +39,7 @@ class UpdateNode(IUpdateNode):
 
     # [?] mấy fields create_at,... trong baseClass BaseMdelWithDateTime có bắt buộc phải có không?
     # hiện tại đang set mấy field đó optional ~ có thể bằng None
-    class BaseHttpRequest(BaseMetaTimeModel, CreateNode.BaseHttpRequest):
+    class BaseHttpRequest(BaseMetaTimeModel, CreateShape.BaseHttpRequest):
         node_id: UUID
 
     class HttpRequest(BaseHttpRequest, p.BaseModel):
@@ -126,4 +126,4 @@ class UpdateNode(IUpdateNode):
         return self.Response(updated_node=updated_node)
 
 
-UpdateNodeDep = t.Annotated[UpdateNode, Depends()]
+UpdateShapeDep = t.Annotated[UpdateShape, Depends()]

@@ -111,14 +111,26 @@ class CreateShape(ICreateShape):
             self._logger.error(log_message)
             raise BadRequestError(error_message)
 
-        create_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
+        create_data = request.model_dump(by_alias=True, exclude={"project_id"}, exclude_none=True)
         # process create organization
         shape = ShapeModel(**create_data)
 
         # current_project.nodes.append(node)
-        current_project.nodes.insert(0, shape)
+        # current_project.nodes.insert(0, shape)
+        # self._collection.update_one(
+        #     {"_id": project_id}, {"$set": current_project.model_dump(exclude={"id"}, exclude_none=True)}
+        # )
+
         self._collection.update_one(
-            {"_id": project_id}, {"$set": current_project.model_dump(exclude={"id"}, exclude_none=True)}
+            {"_id": project_id},
+            {
+                "$push": {
+                    "nodes": {
+                        "$each": [{**shape.model_dump(by_alias=True, exclude_none=True)}],
+                        "$position": 0,
+                    }
+                }
+            },
         )
 
         return self.Response(created_shape=shape)
