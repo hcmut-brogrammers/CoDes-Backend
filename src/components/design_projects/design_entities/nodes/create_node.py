@@ -78,14 +78,29 @@ class CreateNode(ICreateNode):
             raise BadRequestError(error_message)
 
         # process create organization
-        create_data = request.model_dump(by_alias=True, exclude={"project_id"}, exclude_none=True)
+        create_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
         node = NodeModel(**create_data)
 
-        # current_project.nodes.append(node)
-        current_project.nodes.insert(0, node)
+        # # current_project.nodes.append(node)
+        # current_project.nodes.insert(0, node)
+        # self._collection.update_one(
+        #     {"_id": project_id}, {"$set": current_project.model_dump(exclude={"id"}, exclude_none=True)}
+        # )
+
+        # new way to create node
         self._collection.update_one(
-            {"_id": project_id}, {"$set": current_project.model_dump(exclude={"id"}, exclude_none=True)}
+            {"_id": project_id},
+            {
+                "$push": {
+                    "nodes": {
+                        "$each": [{**node.model_dump(by_alias=True, exclude_none=True)}],
+                        "$position": 0,
+                    }
+                }
+            },
         )
+
+        # TODO: check if matched <project> found and node is inserted to <project>.nodes
 
         return self.Response(created_node=node)
 
