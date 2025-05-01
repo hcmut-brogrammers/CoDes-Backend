@@ -5,6 +5,7 @@ from fastapi import Depends
 from pymongo.cursor import Cursor
 
 from ...common.models import UserModel
+from ...common.models.base import PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces import IBaseComponent
@@ -19,11 +20,16 @@ class GetUserByEmailFragment(IGetUserByEmailFragment):
         self._logger = logger
         self._collection = self._db.get_collection(CollectionName.USERS)
 
+    class User(p.BaseModel):
+        id: PyObjectUUID
+        username: str
+        email: str
+
     class Request(p.BaseModel):
         email_fragment: str
 
     class Response(p.BaseModel):
-        users: t.List["UserModel"] | None
+        users: list["GetUserByEmailFragment.User"] | None = []
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
@@ -35,7 +41,8 @@ class GetUserByEmailFragment(IGetUserByEmailFragment):
         if not users_data:
             return self.Response(users=[])
 
-        users = [UserModel(**user_data) for user_data in users_data]
+        matched_users = [UserModel(**user_data) for user_data in users_data]
+        users = [self.User(id=user.id, username=user.username, email=user.email) for user in matched_users]
         return self.Response(users=users)
 
 

@@ -6,20 +6,12 @@ from fastapi import Depends
 
 from ...common.auth import TokenData, UserContextDep
 from ...common.models import OrganizationModel, UserRole
-from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep
+from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
-from ..authenticate import (
-    CreateRefreshToken,
-    CreateRefreshTokenDep,
-    RefreshAccessTokenDep,
-    RevokeRefreshToken,
-    RevokeRefreshTokenDep,
-    SignUp,
-)
+from ..authenticate import CreateRefreshToken, CreateRefreshTokenDep, RevokeRefreshToken, RevokeRefreshTokenDep, SignUp
 from ..organizations.get_organization_by_id import GetOrganizationByIdDep
 
 ISwitchOrganization = IBaseComponent["SwitchOrganization.Request", "SwitchOrganization.Response"]
@@ -31,21 +23,16 @@ class SwitchOrganization(ISwitchOrganization):
         jwt_service: JwtServiceDep,
         create_refresh_token: CreateRefreshTokenDep,
         revoke_refresh_token: RevokeRefreshTokenDep,
-        db: MongoDbDep,
         logger: LoggerDep,
         get_organization_by_id: GetOrganizationByIdDep,
         user_context: UserContextDep,
-        refresh_access_token: RefreshAccessTokenDep,
     ) -> None:
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._revoke_refresh_token = revoke_refresh_token
-        self._db = db
         self._logger = logger
-        self._refresh_token_collection = self._db.get_collection(CollectionName.REFRESH_TOKENS)
         self._get_organization_by_id = get_organization_by_id
         self._user_context = user_context
-        self._refresh_access_token = refresh_access_token
 
     class Request(p.BaseModel):
         access_token: str

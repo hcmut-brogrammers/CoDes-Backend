@@ -12,9 +12,10 @@ class ApiPath:
     SIGN_UP = "/sign-up"
     AUTHENTICATE_USER = "/authenticate-user"
     REFRESH_ACCESS_TOKEN = "/refresh-access-token"
-    SWITCH_ORGANIZATION = "/switch_organization"
+    SWITCH_ORGANIZATION = "/switch-organization"
 
     USERS = "/users"
     ORGANIZATIONS = "/organizations"
     TESTS = "/tests"
-    JOIN_WORKSPACE_INVITATIONS = "/join-workspace-invitations"
+    JOIN_ORGANIZATION_INVITATIONS = "/join-organization-invitations"
+    DESIGN_PROJECTS = "/design-projects"

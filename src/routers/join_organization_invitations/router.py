@@ -4,7 +4,7 @@ from ...components.join_organization_invitations import CreateBatchJoinOrganizat
 from ...constants.router import ApiPath
 
 router = APIRouter(
-    prefix=ApiPath.JOIN_WORKSPACE_INVITATIONS,
+    prefix=ApiPath.JOIN_ORGANIZATION_INVITATIONS,
     tags=["join-workspace-invitations"],
 )
 
