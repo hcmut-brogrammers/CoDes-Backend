@@ -3,9 +3,10 @@ from enum import Enum
 
 import pydantic as p
 
-from ...common.models.base import PyObjectHttpUrlStr
-
 """------------------------------NodeModel------------------------------"""
+
+# NodeModel is a base class for all nodes in the design project
+# ShapeElementModel = ShapeModel | NodeModel
 
 
 class GlobalCompositeOperationType(str, Enum):

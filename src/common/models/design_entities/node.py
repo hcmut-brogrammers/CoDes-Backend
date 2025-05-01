@@ -1,16 +1,12 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Any, Callable, Dict, List, Literal, TypeAlias
 
-# Assuming p is an alias for pydantic
 import pydantic as p
-from pydantic import BaseModel
 
-from ....common.design_entities.type import GlobalCompositeOperationType, Vector2d
-from ....common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
+from src.common.design_entities.type import GlobalCompositeOperationType, Vector2d
+from src.common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
 
 
-class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId, p.BaseModel):
     x: float | None = p.Field(default=None, alias="x")
     y: float | None = p.Field(default=None, alias="y")
     width: float | None = p.Field(default=None, alias="width")
@@ -38,6 +34,8 @@ class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId)
         default=None, alias="globalCompositeOperation"
     )
     # filters: List[Filter] | None = p.Field(default=None, alias="filters")
+
+    model_config = p.ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 # https://github.com/konvajs/konva/blob/master/src/Node.ts#L18
