@@ -29,7 +29,7 @@ class GetUserByEmailFragment(IGetUserByEmailFragment):
         email_fragment: str
 
     class Response(p.BaseModel):
-        users: list["GetUserByEmailFragment.User"] | None = []
+        users: list["GetUserByEmailFragment.User"] = []
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))

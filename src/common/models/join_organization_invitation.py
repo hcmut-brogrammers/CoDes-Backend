@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional
 
 import pydantic as p
 
@@ -29,3 +28,4 @@ class JoinOrganizationInvitationModel(BaseModelWithId, BaseModelWithDateTime, Ba
     status: Status = p.Field(alias="status", default=Status.Pending)
     taken_action: TakenAction | None = p.Field(alias="taken_action", default=None)
     expires_at: PyObjectDatetime = p.Field(alias="expires_at")
+    is_read: bool = p.Field(alias="is_read", default=False)

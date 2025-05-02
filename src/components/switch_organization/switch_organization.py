@@ -4,7 +4,7 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from ...common.auth import TokenData, UserContextDep
+from ...common.auth import TokenData, UserContext, UserContextDep
 from ...common.models import OrganizationModel, UserRole
 from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
@@ -51,7 +51,7 @@ class SwitchOrganization(ISwitchOrganization):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        token_data = TokenData(**self._user_context.model_dump())
+        token_data = self._create_token_data(self._user_context)
         requested_organization_id = request.organization_id
         if token_data.organization_id == requested_organization_id:
             self._logger.info(f"Requested organization id {requested_organization_id} is the same as the current one.")
@@ -82,6 +82,19 @@ class SwitchOrganization(ISwitchOrganization):
             access_token=new_access_token,
             refresh_token_id=new_refresh_token_id,
         )
+
+    def _create_token_data(self, user_context: UserContext) -> TokenData:
+        token_data = TokenData(
+            user_id=user_context.user_id,
+            organization_id=user_context.organization_id,
+            role=user_context.role,
+            email=user_context.email,
+            username=user_context.username,
+            exp=user_context.exp,
+            sub=user_context.sub,
+        )
+
+        return token_data
 
 
 SwitchOrganizationDep = t.Annotated[

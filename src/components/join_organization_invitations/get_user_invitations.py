@@ -46,14 +46,22 @@ class GetUserInvitations(IGetUserInvitations):
         status: Status = p.Field(alias="status")
         expires_at: PyObjectDatetime = p.Field(alias="expires_at")
         created_at: PyObjectDatetime = p.Field(alias="created_at")
+        is_read: bool = p.Field(alias="is_read")
 
     class Response(p.BaseModel):
         invitations: list["GetUserInvitations.UserInvitation"]
 
+    def _make_query(self, receiver_id: PyObjectUUID) -> dict:
+        return {
+            "receiver_id": receiver_id,
+            "taken_action": None,
+            "expires_at": {"$gt": get_utc_now()},
+        }
+
     async def aexecute(self) -> "Response":
         self._logger.info(execute_service_method(self))
         receiver_id = self._user_context.user_id
-        query_filter = {"receiver_id": receiver_id, "taken_action": None, "expires_at": {"$gt": get_utc_now()}}
+        query_filter = self._make_query(receiver_id)
 
         invitations_data = self._collection.find(query_filter)
         invitations = [JoinOrganizationInvitationModel(**invitation_data) for invitation_data in invitations_data]
@@ -81,6 +89,7 @@ class GetUserInvitations(IGetUserInvitations):
                 status=invitation.status,
                 expires_at=invitation.expires_at,
                 created_at=invitation.created_at,
+                is_read=invitation.is_read,
             )
             user_invitations.append(user_invitation)
 
