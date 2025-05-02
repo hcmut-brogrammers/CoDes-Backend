@@ -120,7 +120,7 @@ class TestRefreshAccessToken:
 
         # Mock jwt_service
         mock_jwt_service.configure_mock(
-            decode_jwt_token=Mock(side_effect=BadRequestError("Failed to decode access token.")),
+            decode_jwt_token=Mock(side_effect=ValueError("Failed to decode access token.")),
             extend_token_data_expiration=Mock(return_value=extend_exp_token_data),
             encode_jwt_token=Mock(return_value=mock_new_access_token),
         )
