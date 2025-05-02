@@ -115,6 +115,8 @@ class UpdateNode(IUpdateNode):
             {"_id": project_id, "nodes._id": request.node_id}, {"nodes": {"$elemMatch": {"_id": request.node_id}}}
         )
 
+        # check if updated_node_data có field "nodes" hay không, nó có phải array không?
+
         if updated_node_data is None:
             log_message = f"Update succeed, but failed in retrieve data."
             error_message = f"Update succeed, but failed in retrieve data."

@@ -93,7 +93,7 @@ class CreateNode(ICreateNode):
             {
                 "$push": {
                     "nodes": {
-                        "$each": [{**node.model_dump(by_alias=True, exclude_none=True)}],
+                        "$each": [node.model_dump(by_alias=True, exclude_none=True)],
                         "$position": 0,
                     }
                 }
