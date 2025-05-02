@@ -4,7 +4,7 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
-from ...common.auth import TokenData, UserContextDep
+from ...common.auth import TokenData, UserContext, UserContextDep
 from ...common.models import OrganizationModel, UserRole
 from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
@@ -24,14 +24,14 @@ class SwitchOrganization(ISwitchOrganization):
         create_refresh_token: CreateRefreshTokenDep,
         revoke_refresh_token: RevokeRefreshTokenDep,
         logger: LoggerDep,
-        get_organization: GetOrganizationByIdDep,
+        get_organization_by_id: GetOrganizationByIdDep,
         user_context: UserContextDep,
     ) -> None:
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
         self._revoke_refresh_token = revoke_refresh_token
         self._logger = logger
-        self._get_organization = get_organization
+        self._get_organization_by_id = get_organization_by_id
         self._user_context = user_context
 
     class Request(p.BaseModel):
@@ -51,7 +51,7 @@ class SwitchOrganization(ISwitchOrganization):
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-        token_data = TokenData(**self._user_context.model_dump())
+        token_data = self._create_token_data(self._user_context)
         requested_organization_id = request.organization_id
         if token_data.organization_id == requested_organization_id:
             self._logger.info(f"Requested organization id {requested_organization_id} is the same as the current one.")
@@ -64,10 +64,15 @@ class SwitchOrganization(ISwitchOrganization):
             self._logger.error("Failed to revoke refresh token.")
             raise BadRequestError("Failed to revoke refresh token.")
 
-        get_organization_by_id_response = await self._get_organization.aexecute(
+        get_organization_by_id_response = await self._get_organization_by_id.aexecute(
             GetOrganizationByIdDep.Request(id=requested_organization_id)
         )
-        token_data = self._update_token_data(token_data, get_organization_by_id_response.organization)
+        requested_organization = get_organization_by_id_response.organization
+        if not requested_organization:
+            self._logger.error(f"Organization with id {requested_organization_id} not found.")
+            raise BadRequestError(f"Organization with id {requested_organization_id} not found.")
+
+        token_data = self._update_token_data(token_data, requested_organization)
         new_access_token = self._jwt_service.encode_jwt_token(token_data)
         create_refresh_token_request = CreateRefreshToken.Request(access_token=new_access_token)
         create_refresh_token_response = await self._create_refresh_token.aexecute(create_refresh_token_request)
@@ -77,6 +82,19 @@ class SwitchOrganization(ISwitchOrganization):
             access_token=new_access_token,
             refresh_token_id=new_refresh_token_id,
         )
+
+    def _create_token_data(self, user_context: UserContext) -> TokenData:
+        token_data = TokenData(
+            user_id=user_context.user_id,
+            organization_id=user_context.organization_id,
+            role=user_context.role,
+            email=user_context.email,
+            username=user_context.username,
+            exp=user_context.exp,
+            sub=user_context.sub,
+        )
+
+        return token_data
 
 
 SwitchOrganizationDep = t.Annotated[

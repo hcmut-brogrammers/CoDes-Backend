@@ -1,3 +1,4 @@
+from .base import PyObjectDatetime, PyObjectUUID
 from .design_project import DesignProjectModel
 from .join_organization_invitation import InviteeAction, JoinOrganizationInvitationModel, Status, TakenAction
 from .organization import OrganizationModel
@@ -15,5 +16,7 @@ __all__ = [
     "Status",
     "InviteeAction",
     "TakenAction",
+    "PyObjectUUID",
+    "PyObjectDatetime",
     "DesignProjectModel",
 ]

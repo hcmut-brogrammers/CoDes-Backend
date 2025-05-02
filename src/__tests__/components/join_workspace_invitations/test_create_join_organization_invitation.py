@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 
 from ....common.models.join_organization_invitation import JoinOrganizationInvitationModel, Status
-from ....components.join_workspace_invitations.create_join_organization_invitation import (
+from ....components.join_organization_invitations.create_join_organization_invitation import (
     INVITATION_EXPIRATION_DAYS,
     CreateJoinOrganizationInvitation,
 )

@@ -39,7 +39,6 @@ class CreateBatchJoinOrganizationInvitation(ICreateBatchJoinOrganizationInvitati
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
-
         receiver_ids = request.user_ids
         organization_id = self._user_context.organization_id
         sender_id = self._user_context.user_id
