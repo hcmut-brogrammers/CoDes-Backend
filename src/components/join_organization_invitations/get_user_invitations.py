@@ -5,7 +5,7 @@ from fastapi import Depends
 
 from src.utils.common import get_utc_now
 
-from ...common.models import JoinOrganizationInvitationModel, PyObjectDatetime, PyObjectUUID, Status
+from ...common.models import InvitationStatus, JoinOrganizationInvitationModel, PyObjectDatetime, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...interfaces.base_component import IBaseComponentWithoutRequest
@@ -43,7 +43,7 @@ class GetUserInvitations(IGetUserInvitations):
         id: PyObjectUUID = p.Field(alias="id")
         organization: "GetUserInvitations.Organization" = p.Field(alias="organization")
         sender: "GetUserInvitations.Sender" = p.Field(alias="sender")
-        status: Status = p.Field(alias="status")
+        status: InvitationStatus = p.Field(alias="status")
         expires_at: PyObjectDatetime = p.Field(alias="expires_at")
         created_at: PyObjectDatetime = p.Field(alias="created_at")
         is_read: bool = p.Field(alias="is_read")

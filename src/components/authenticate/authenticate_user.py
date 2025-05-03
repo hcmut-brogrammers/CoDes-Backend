@@ -9,7 +9,7 @@ from ...exceptions import BadRequestError
 from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
-from ..organizations import GetDefaultOrganization, GetDefaultOrganizationDep
+from ..organizations import GetUserDefaultOrganization, GetUserDefaultOrganizationDep
 from ..users import GetUserByEmail, GetUserByEmailDep
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
 from .sign_up import SignUp
@@ -25,7 +25,7 @@ class AuthenticateUser(IAuthenticateUser):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
-        get_default_organization: GetDefaultOrganizationDep,
+        get_default_organization: GetUserDefaultOrganizationDep,
     ) -> None:
         self._get_user_by_email = get_user_by_email
         self._jwt_service = jwt_service
@@ -57,7 +57,7 @@ class AuthenticateUser(IAuthenticateUser):
 
         organization_owner_id = current_user.id
         get_default_organization_response = await self._get_default_organization.aexecute(
-            GetDefaultOrganization.Request(owner_id=organization_owner_id)
+            GetUserDefaultOrganization.Request(owner_id=organization_owner_id)
         )
         default_organization = get_default_organization_response.organization
         token_data = self._jwt_service.create_user_token_data(

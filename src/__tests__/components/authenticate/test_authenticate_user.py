@@ -7,7 +7,7 @@ from ....common.auth import TokenData
 from ....common.models import OrganizationModel, UserModel, UserRole
 from ....components.authenticate.authenticate_user import AuthenticateUser
 from ....components.authenticate.create_refresh_token import CreateRefreshToken
-from ....components.organizations import GetDefaultOrganization
+from ....components.organizations import GetUserDefaultOrganization
 from ....components.users import GetUserByEmail
 from ....exceptions import BadRequestError
 
@@ -58,7 +58,7 @@ class TestAuthenticateUser:
             name="test_org_name", avatar_url="http://test.example.com", owner_id=mock_user.id, is_default=True
         )
         mock_get_default_organization.configure_mock(
-            aexecute=AsyncMock(return_value=GetDefaultOrganization.Response(organization=default_organization))
+            aexecute=AsyncMock(return_value=GetUserDefaultOrganization.Response(organization=default_organization))
         )
         mock_user_token_data = TokenData(
             user_id=mock_user.id,
@@ -106,7 +106,7 @@ class TestAuthenticateUser:
             CreateRefreshToken.Request(access_token=mock_access_token)
         )
         mock_get_default_organization.aexecute.assert_called_once_with(
-            GetDefaultOrganization.Request(owner_id=mock_user.id)
+            GetUserDefaultOrganization.Request(owner_id=mock_user.id)
         )
 
     @pytest.mark.asyncio
@@ -166,7 +166,7 @@ class TestAuthenticateUser:
             name="test_org_name", avatar_url="http://test.example.com", owner_id=mock_user.id, is_default=True
         )
         mock_get_default_organization.configure_mock(
-            aexecute=AsyncMock(return_value=GetDefaultOrganization.Response(organization=default_organization))
+            aexecute=AsyncMock(return_value=GetUserDefaultOrganization.Response(organization=default_organization))
         )
 
         authenticate_user = AuthenticateUser(

@@ -5,10 +5,9 @@ import pydantic as p
 from .base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete, PyObjectDatetime, PyObjectUUID
 
 
-class Status(str, Enum):
+class InvitationStatus(str, Enum):
     Pending = "Pending"
-    Accepted = "Accepted"
-    Rejected = "Rejected"
+    Completed = "Completed"
 
 
 class InviteeAction(str, Enum):
@@ -25,7 +24,7 @@ class JoinOrganizationInvitationModel(BaseModelWithId, BaseModelWithDateTime, Ba
     organization_id: PyObjectUUID = p.Field(alias="organization_id")
     sender_id: PyObjectUUID = p.Field(alias="sender_id")
     receiver_id: PyObjectUUID = p.Field(alias="receiver_id")
-    status: Status = p.Field(alias="status", default=Status.Pending)
+    status: InvitationStatus = p.Field(alias="status", default=InvitationStatus.Pending)
     taken_action: TakenAction | None = p.Field(alias="taken_action", default=None)
     expires_at: PyObjectDatetime = p.Field(alias="expires_at")
     is_read: bool = p.Field(alias="is_read", default=False)

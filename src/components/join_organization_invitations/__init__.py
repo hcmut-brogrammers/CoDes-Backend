@@ -1,3 +1,4 @@
+from .accept_or_reject_invitation import AcceptOrRejectInvitation, AcceptOrRejectInvitationDep
 from .create_batch_join_organization_invitations import (
     CreateBatchJoinOrganizationInvitation,
     CreateBatchJoinOrganizationInvitationDep,
@@ -15,4 +16,6 @@ __all__ = [
     "GetUserInvitationsDep",
     "MarkInvitationReadOrUnread",
     "MarkInvitationReadOrUnreadDep",
+    "AcceptOrRejectInvitation",
+    "AcceptOrRejectInvitationDep",
 ]
