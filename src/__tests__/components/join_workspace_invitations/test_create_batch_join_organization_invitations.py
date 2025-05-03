@@ -6,10 +6,10 @@ import pytest
 
 from ....common.models.join_organization_invitation import JoinOrganizationInvitationModel, Status
 from ....common.models.organization import OrganizationModel
-from ....components.join_workspace_invitations.create_batch_join_organization_invitations import (
+from ....components.join_organization_invitations.create_batch_join_organization_invitations import (
     CreateBatchJoinOrganizationInvitation,
 )
-from ....components.join_workspace_invitations.create_join_organization_invitation import (
+from ....components.join_organization_invitations.create_join_organization_invitation import (
     INVITATION_EXPIRATION_DAYS,
     CreateJoinOrganizationInvitation,
 )
