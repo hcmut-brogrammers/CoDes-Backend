@@ -2,6 +2,8 @@ from fastapi import APIRouter, status
 
 from ...common.models import PyObjectUUID
 from ...components.join_organization_invitations import (
+    AcceptOrRejectInvitation,
+    AcceptOrRejectInvitationDep,
     CreateBatchJoinOrganizationInvitationDep,
     GetUserInvitationsDep,
     MarkInvitationReadOrUnread,
@@ -27,6 +29,20 @@ async def create_multi_invitations(
     request: CreateBatchJoinOrganizationInvitationDep.Request,
 ):
     return await create_organization.aexecute(request)
+
+
+@router.post(
+    "/action",
+    response_model=AcceptOrRejectInvitation.Response,
+    response_description="Join Organization Invitations accepted or rejected",
+    response_model_by_alias=False,
+    status_code=status.HTTP_201_CREATED,
+)
+async def accept_or_reject_invitation(
+    accept_or_reject_invitation: AcceptOrRejectInvitationDep,
+    request: AcceptOrRejectInvitation.Request,
+):
+    return await accept_or_reject_invitation.aexecute(request)
 
 
 @router.post(

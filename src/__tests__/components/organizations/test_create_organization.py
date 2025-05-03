@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 
 from ....common.models import OrganizationModel
-from ....components.organizations.create_organization import CreateOrganization
+from ....components.organizations.create_user_organization import CreateUserOrganization
 from ....exceptions import InternalServerError
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
@@ -43,10 +43,10 @@ class TestCreateOrganization:
         )
 
         # Initialize the component
-        create_organization = CreateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
+        create_organization = CreateUserOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
-        request = CreateOrganization.Request(name=organization.name, avatar_url=organization.avatar_url)
+        request = CreateUserOrganization.Request(name=organization.name, avatar_url=organization.avatar_url)
         response = await create_organization.aexecute(request)
 
         # Assertions
@@ -89,10 +89,10 @@ class TestCreateOrganization:
         )
 
         # Initialize the component
-        create_organization = CreateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
+        create_organization = CreateUserOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
-        request = CreateOrganization.Request(
+        request = CreateUserOrganization.Request(
             name=organization.name,
             avatar_url=organization.avatar_url,
         )
