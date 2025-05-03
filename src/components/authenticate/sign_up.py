@@ -5,15 +5,14 @@ import pydantic as p
 from fastapi import Depends
 
 from ...common.models import UserRole
-from ...common.models.user import UserModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
 from ...interfaces.base_component import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
-from ..organizations import CreateDefaultOrganization, CreateDefaultOrganizationDep
-from ..users import CreateUser, CreateUserDep, GetUserByEmail, GetUserByEmailDep
+from ..organizations import CreateUserDefaultOrganization, CreateUserDefaultOrganizationDep
+from ..users import AddUserToOrganizationDep, CreateUser, CreateUserDep, GetUserByEmail, GetUserByEmailDep
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
 
 ISignUp = IBaseComponent["SignUp.Request", "SignUp.Response"]
@@ -28,7 +27,8 @@ class SignUp(ISignUp):
         create_refresh_token: CreateRefreshTokenDep,
         db: MongoDbDep,
         logger: LoggerDep,
-        create_default_organization: CreateDefaultOrganizationDep,
+        create_default_organization: CreateUserDefaultOrganizationDep,
+        add_user_to_organization: AddUserToOrganizationDep,
     ) -> None:
         self._create_user = create_user
         self._get_user_by_email = get_user_by_email
@@ -37,12 +37,12 @@ class SignUp(ISignUp):
         self._collection = db.get_collection(CollectionName.USERS)
         self._logger = logger
         self._create_default_organization = create_default_organization
+        self._add_user_to_organization = add_user_to_organization
 
     class Request(p.BaseModel):
         email: p.EmailStr
         password: str = p.Field(min_length=8)
         username: str
-        role: UserRole
 
     class Response(p.BaseModel):
         access_token: str
@@ -56,23 +56,27 @@ class SignUp(ISignUp):
             self._logger.error(f"User with email {request.email} already exists.")
             raise BadRequestError(f"User with email {request.email} already exists.")
 
+        role = UserRole.OrganizationAdmin
         self._logger.info(f"User with email {request.email} not found, creating a new user.")
         create_user_request = CreateUser.Request(
             email=request.email,
             hashed_password=self._jwt_service.hash(request.password),
             username=request.username,
-            role=request.role,
+            role=role,
         )
         create_user_response = await self._create_user.aexecute(create_user_request)
+        created_user = create_user_response.created_user
 
-        created_user: UserModel = create_user_response.created_user
-        # CreateOrganizationDep handle when create default or non-default organization
-        create_default_organization_response = await self._create_default_organization.aexecute(
-            CreateDefaultOrganization.Request(owner_id=created_user.id, owner_name=created_user.username)
+        create_default_organization_request = CreateUserDefaultOrganization.Request(
+            owner_id=created_user.id, owner_username=created_user.username
         )
+        create_default_organization_response = await self._create_default_organization.aexecute(
+            create_default_organization_request
+        )
+
         token_data = self._jwt_service.create_user_token_data(
             user=create_user_response.created_user,
-            user_role=UserRole.OrganizationAdmin,
+            user_role=role,
             organization_id=create_default_organization_response.created_organization.id,
         )
         access_token = self._jwt_service.encode_jwt_token(token_data)

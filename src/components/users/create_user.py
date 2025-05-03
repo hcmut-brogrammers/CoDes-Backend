@@ -3,7 +3,7 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import UserModel, UserRole
+from ...common.models import JoinedOrganization, UserModel, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import InternalServerError
@@ -23,6 +23,7 @@ class CreateUser(ICreateUser):
         hashed_password: str
         email: str
         role: UserRole
+        joined_organizations: list[JoinedOrganization] = []
 
     class Response(p.BaseModel):
         created_user: UserModel
@@ -30,7 +31,11 @@ class CreateUser(ICreateUser):
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
         user = UserModel(
-            username=request.username, hashed_password=request.hashed_password, email=request.email, role=request.role
+            username=request.username,
+            hashed_password=request.hashed_password,
+            email=request.email,
+            role=request.role,
+            joined_organizations=request.joined_organizations,
         )
         user_data = user.model_dump(by_alias=True)
         inserted_user = self._collection.insert_one(user_data)

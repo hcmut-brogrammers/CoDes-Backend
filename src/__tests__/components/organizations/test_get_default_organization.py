@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from ....components.organizations.get_default_organization import GetDefaultOrganization
+from ....components.organizations.get_user_default_organization import GetUserDefaultOrganization
 from ....exceptions import NotFoundError
 
 MockSetUp = tuple[Mock, Mock, AsyncMock]
@@ -41,11 +41,11 @@ class TestGetOrganizationByOwnerId:
         mock_collection.configure_mock(find_one=Mock(return_value=organization_data))
 
         # Initialize the component
-        get_organization_by_id = GetDefaultOrganization(db=mock_db, logger=mock_logger)
+        get_organization_by_id = GetUserDefaultOrganization(db=mock_db, logger=mock_logger)
 
         # Execute the component
-        get_organization_by_id = GetDefaultOrganization(db=mock_db, logger=mock_logger)
-        request = GetDefaultOrganization.Request(owner_id=mock_user_id)
+        get_organization_by_id = GetUserDefaultOrganization(db=mock_db, logger=mock_logger)
+        request = GetUserDefaultOrganization.Request(owner_id=mock_user_id)
         response = await get_organization_by_id.aexecute(request)
 
         # Assertions
@@ -69,10 +69,10 @@ class TestGetOrganizationByOwnerId:
         mock_collection.configure_mock(find_one=Mock(return_value=None))
 
         # Initialize the component
-        get_organization_by_id = GetDefaultOrganization(db=mock_db, logger=mock_logger)
+        get_organization_by_id = GetUserDefaultOrganization(db=mock_db, logger=mock_logger)
 
         # Execute the component with expected Error
-        request = GetDefaultOrganization.Request(owner_id=mock_user_id)
+        request = GetUserDefaultOrganization.Request(owner_id=mock_user_id)
         with pytest.raises(NotFoundError):
             await get_organization_by_id.aexecute(request)
 

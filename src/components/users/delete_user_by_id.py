@@ -13,6 +13,7 @@ from ...utils.logger import execute_service_method
 IDeleteUserById = IBaseComponent["DeleteUserById.Request", "DeleteUserById.Response"]
 
 
+# TODO: handle delete user
 class DeleteUserById(IDeleteUserById):
     def __init__(self, db: MongoDbDep, logger: LoggerDep) -> None:
         self._collection = db.get_collection(CollectionName.USERS)

@@ -6,7 +6,7 @@ import pytest
 from ....common.auth import TokenData
 from ....common.models import OrganizationModel, UserModel, UserRole
 from ....components.authenticate import CreateRefreshToken, SignUp
-from ....components.organizations import CreateDefaultOrganization
+from ....components.organizations import CreateUserDefaultOrganization
 from ....components.users import CreateUser, GetUserByEmail
 from ....exceptions import BadRequestError
 
@@ -63,7 +63,7 @@ class TestSignUp:
         )
         mock_create_default_organization.configure_mock(
             aexecute=AsyncMock(
-                return_value=CreateDefaultOrganization.Response(created_organization=created_organization)
+                return_value=CreateUserDefaultOrganization.Response(created_organization=created_organization)
             )
         )
         mock_user_token_data = TokenData(
@@ -126,9 +126,9 @@ class TestSignUp:
         )
 
         mock_create_default_organization.aexecute.assert_called_once_with(
-            CreateDefaultOrganization.Request(
+            CreateUserDefaultOrganization.Request(
                 owner_id=mock_current_user.id,
-                owner_name=mock_current_user.username,
+                owner_username=mock_current_user.username,
             )
         )
         mock_jwt_service.create_user_token_data.assert_called_once_with(

@@ -1,10 +1,9 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import OrganizationModel
+from ...common.models import OrganizationModel, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces.base_component import IBaseComponent
@@ -19,7 +18,7 @@ class GetOrganizationById(IGetOrganizationById):
         self._logger = logger
 
     class Request(p.BaseModel):
-        id: UUID
+        id: PyObjectUUID
 
     class Response(p.BaseModel):
         organization: OrganizationModel | None
@@ -29,7 +28,6 @@ class GetOrganizationById(IGetOrganizationById):
         organization_id = request.id
         filter = {"_id": organization_id}
         organization_data = self._collection.find_one(filter)
-
         if not organization_data:
             return self.Response(organization=None)
 
