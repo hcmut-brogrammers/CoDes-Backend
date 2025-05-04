@@ -8,3 +8,4 @@ black
 isort
 pyjwt
 passlib[bcrypt]
+websockets
