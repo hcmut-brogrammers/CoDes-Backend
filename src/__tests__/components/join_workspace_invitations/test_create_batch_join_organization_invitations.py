@@ -1,10 +1,10 @@
 from datetime import timedelta
 from unittest.mock import AsyncMock, Mock, call
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 
-from ....common.models.join_organization_invitation import JoinOrganizationInvitationModel, Status
+from ....common.models.join_organization_invitation import InvitationStatus, JoinOrganizationInvitationModel
 from ....common.models.organization import OrganizationModel
 from ....components.join_organization_invitations.create_batch_join_organization_invitations import (
     CreateBatchJoinOrganizationInvitation,
@@ -13,7 +13,7 @@ from ....components.join_organization_invitations.create_join_organization_invit
     INVITATION_EXPIRATION_DAYS,
     CreateJoinOrganizationInvitation,
 )
-from ....exceptions import BadRequestError, InternalServerError
+from ....exceptions import BadRequestError
 from ....utils.common import get_utc_now
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock, AsyncMock]
@@ -56,7 +56,7 @@ class TestCreateBatchJoinOrganizationInvitation:
                 organization_id=mock_organization_id,
                 sender_id=mock_sender_id,
                 receiver_id=mock_receiver_id,
-                status=Status.Pending,
+                status=InvitationStatus.Pending,
                 taken_action=None,
                 expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
             )
@@ -99,7 +99,7 @@ class TestCreateBatchJoinOrganizationInvitation:
             assert invitation.organization_id == mock_organization_id
             assert invitation.sender_id == mock_sender_id
             assert invitation.receiver_id == mock_invitation.receiver_id
-            assert invitation.status == Status.Pending
+            assert invitation.status == InvitationStatus.Pending
             assert invitation.taken_action is None
 
         # Verify interactions

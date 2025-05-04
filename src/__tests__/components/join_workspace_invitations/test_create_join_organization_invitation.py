@@ -4,7 +4,7 @@ from uuid import UUID
 
 import pytest
 
-from ....common.models.join_organization_invitation import JoinOrganizationInvitationModel, Status
+from ....common.models.join_organization_invitation import InvitationStatus, JoinOrganizationInvitationModel
 from ....components.join_organization_invitations.create_join_organization_invitation import (
     INVITATION_EXPIRATION_DAYS,
     CreateJoinOrganizationInvitation,
@@ -71,7 +71,7 @@ class TestCreateJoinOrganizationInvitation:
             organization_id=mock_organization_id,
             sender_id=mock_sender_id,
             receiver_id=mock_receiver_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             taken_action=None,
             expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
         )
@@ -106,7 +106,7 @@ class TestCreateJoinOrganizationInvitation:
         assert response.invitation.organization_id == mock_organization_id
         assert response.invitation.sender_id == mock_sender_id
         assert response.invitation.receiver_id == mock_receiver_id
-        assert response.invitation.status == Status.Pending
+        assert response.invitation.status == InvitationStatus.Pending
         assert response.invitation.taken_action is None
 
         # Verify interactions
@@ -147,7 +147,7 @@ class TestCreateJoinOrganizationInvitation:
             organization_id=mock_organization_id,
             sender_id=mock_sender_id,
             receiver_id=mock_receiver_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             taken_action=None,
             expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
         )
@@ -216,7 +216,7 @@ class TestCreateJoinOrganizationInvitation:
             organization_id=mock_organization_id,
             sender_id=mock_sender_id,
             receiver_id=mock_receiver_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             taken_action=None,
             expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
         )
@@ -280,7 +280,7 @@ class TestCreateJoinOrganizationInvitation:
             organization_id=mock_organization_id,
             sender_id=mock_sender_id,
             receiver_id=mock_receiver_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             taken_action=None,
             expires_at=mock_taken_at + timedelta(INVITATION_EXPIRATION_DAYS),
         )

@@ -25,19 +25,15 @@ class SignUp(ISignUp):
         get_user_by_email: GetUserByEmailDep,
         jwt_service: JwtServiceDep,
         create_refresh_token: CreateRefreshTokenDep,
-        db: MongoDbDep,
         logger: LoggerDep,
         create_default_organization: CreateUserDefaultOrganizationDep,
-        add_user_to_organization: AddUserToOrganizationDep,
     ) -> None:
         self._create_user = create_user
         self._get_user_by_email = get_user_by_email
         self._jwt_service = jwt_service
         self._create_refresh_token = create_refresh_token
-        self._collection = db.get_collection(CollectionName.USERS)
         self._logger = logger
         self._create_default_organization = create_default_organization
-        self._add_user_to_organization = add_user_to_organization
 
     class Request(p.BaseModel):
         email: p.EmailStr

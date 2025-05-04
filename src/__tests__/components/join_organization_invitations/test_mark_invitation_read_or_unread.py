@@ -4,7 +4,7 @@ import pydantic as p
 import pytest
 from pymongo.results import UpdateResult
 
-from ....common.models import JoinOrganizationInvitationModel, Status
+from ....common.models import InvitationStatus, JoinOrganizationInvitationModel
 from ....components.join_organization_invitations.mark_invitation_read_or_unread import MarkInvitationReadOrUnread
 from ....utils.common import generate_uuid, get_utc_now
 
@@ -44,7 +44,7 @@ class TestMarkInvitationReadOrUnread:
             organization_id=generate_uuid(),
             sender_id=generate_uuid(),
             receiver_id=mock_user_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             expires_at=get_utc_now(),
             is_read=False,
         )
@@ -121,7 +121,7 @@ class TestMarkInvitationReadOrUnread:
             organization_id=generate_uuid(),
             sender_id=generate_uuid(),
             receiver_id=generate_uuid(),
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             expires_at=get_utc_now(),
             is_read=False,
         )
@@ -166,7 +166,7 @@ class TestMarkInvitationReadOrUnread:
             organization_id=generate_uuid(),
             sender_id=generate_uuid(),
             receiver_id=mock_user_id,
-            status=Status.Pending,
+            status=InvitationStatus.Pending,
             expires_at=get_utc_now(),
             is_read=False,
         )
