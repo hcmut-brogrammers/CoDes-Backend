@@ -9,7 +9,7 @@ from ...dependencies import LoggerDep, MongoDbDep
 from ...interfaces.base_component import IBaseComponent
 from ...utils.common import find
 from ...utils.logger import execute_service_method
-from ..users import GetMe, GetUserByIdDep
+from ..users import GetUserByIdDep
 from .get_organization_by_id import GetOrganizationById, GetOrganizationByIdDep
 
 IGetOrganizationMembers = IBaseComponent["GetOrganizationMembers.Request", "GetOrganizationMembers.Response"]
@@ -23,7 +23,7 @@ class GetOrganizationMembers(IGetOrganizationMembers):
         get_user_by_id: GetUserByIdDep,
         get_organization_by_id: GetOrganizationByIdDep,
     ) -> None:
-        self._user_collection = db.get_collection(CollectionName.USERS)
+        self._collection = db.get_collection(CollectionName.USERS)
         self._logger = logger
         self._get_user_by_id = get_user_by_id
         self._get_organization_by_id = get_organization_by_id
@@ -55,7 +55,7 @@ class GetOrganizationMembers(IGetOrganizationMembers):
 
         member_ids = [member.member_id for member in organization.members]
         query = {"_id": {"$in": member_ids}}
-        users_data = self._user_collection.find(query)
+        users_data = self._collection.find(query)
         if not users_data:
             self._logger.error(f"No members found for organization with id {organization_id}.")
             return self.Response(members=[])

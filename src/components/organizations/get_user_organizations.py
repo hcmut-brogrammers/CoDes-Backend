@@ -39,7 +39,6 @@ class GetUserOrganizations(IGetUserOrganizations):
         joined_organizations = user.joined_organizations
         joined_organization_ids = [item.organization_id for item in joined_organizations]
         filter = {"_id": {"$in": joined_organization_ids}}
-        # filter = {"owner_id": self._user_context.user_id}
         organizations_data = self._collection.find(filter)
         if not organizations_data:
             self._logger.error(f"No organization that owner_id {self._user_context.user_id} joined is found.")
