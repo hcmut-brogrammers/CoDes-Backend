@@ -6,7 +6,7 @@ import pytest
 from pydantic import HttpUrl
 
 from ....common.models import OrganizationModel
-from ....components.organizations.update_organization import UpdateOrganization
+from ....components.organizations.update_user_organization import UpdateUserOrganization
 from ....exceptions import BadRequestError, InternalServerError, NotFoundError
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
@@ -46,10 +46,10 @@ class TestUpdateOrganization:
         )
 
         # Initialize the component
-        update_organization = UpdateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
+        update_organization = UpdateUserOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
-        request = UpdateOrganization.Request(organization_id=organization.id, **update_data)
+        request = UpdateUserOrganization.Request(organization_id=organization.id, **update_data)
         response = await update_organization.aexecute(request)
 
         # Assertions
@@ -78,10 +78,10 @@ class TestUpdateOrganization:
         update_data = {}
 
         # Initialize the component
-        update_organization = UpdateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
+        update_organization = UpdateUserOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
-        request = UpdateOrganization.Request(organization_id=organization_id, **update_data)
+        request = UpdateUserOrganization.Request(organization_id=organization_id, **update_data)
         with pytest.raises(BadRequestError):
             await update_organization.aexecute(request)
 
@@ -101,9 +101,9 @@ class TestUpdateOrganization:
         mock_collection.configure_mock(find_one=Mock(return_value=None))
 
         # Initialize the component
-        update_organization = UpdateOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
+        update_organization = UpdateUserOrganization(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
-        request = UpdateOrganization.Request(organization_id=organization_id, **update_data)
+        request = UpdateUserOrganization.Request(organization_id=organization_id, **update_data)
         with pytest.raises(NotFoundError):
             await update_organization.aexecute(request)

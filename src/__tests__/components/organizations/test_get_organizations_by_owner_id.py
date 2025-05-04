@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from ....components.organizations.get_organizations_by_owner_id import GetOrganizationsByOwnerId
+from ....components.organizations.get_user_organizations import GetUserOrganizations
 from ....exceptions import NotFoundError
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
@@ -52,9 +52,7 @@ class TestGetOrganizationByOwnerId:
         mock_collection.configure_mock(find=Mock(return_value=organization_data))
 
         # Initialize the component
-        get_organization_by_id = GetOrganizationsByOwnerId(
-            db=mock_db, logger=mock_logger, user_context=mock_user_context
-        )
+        get_organization_by_id = GetUserOrganizations(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component
         response = await get_organization_by_id.aexecute()
@@ -80,9 +78,7 @@ class TestGetOrganizationByOwnerId:
         mock_collection.configure_mock(find=Mock(return_value=None))
 
         # Initialize the component
-        get_organization_by_id = GetOrganizationsByOwnerId(
-            db=mock_db, logger=mock_logger, user_context=mock_user_context
-        )
+        get_organization_by_id = GetUserOrganizations(db=mock_db, logger=mock_logger, user_context=mock_user_context)
 
         # Execute the component with expected Error
         with pytest.raises(NotFoundError):

@@ -3,7 +3,7 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import PyObjectDatetime, PyObjectUUID, UserRole
+from ...common.models import JoinedOrganization, PyObjectDatetime, PyObjectUUID, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import NotFoundError
@@ -30,6 +30,7 @@ class GetMe(IGetMe):
         role: UserRole
         created_at: PyObjectDatetime
         updated_at: PyObjectDatetime
+        joined_organizations: list[JoinedOrganization]
 
     class Response(p.BaseModel):
         user: "GetMe.User"
@@ -43,16 +44,7 @@ class GetMe(IGetMe):
             raise NotFoundError(f"User with id {user_id} not found.")
 
         user = get_user_by_id_response.user
-        return self.Response(
-            user=self.User(
-                id=user.id,
-                username=user.username,
-                email=user.email,
-                role=user.role,
-                created_at=user.created_at,
-                updated_at=user.updated_at,
-            )
-        )
+        return self.Response(user=self.User(**user.model_dump()))
 
 
 GetMeDep = t.Annotated[GetMe, Depends()]
