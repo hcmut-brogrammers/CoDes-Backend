@@ -4,6 +4,8 @@ from uuid import UUID
 import pydantic as p
 from fastapi import Depends
 
+from src.common.models.base import PyObjectUUID
+
 from .....common.auth.user_context import UserContextDep
 from .....common.design_entities.type import GlobalCompositeOperationType, Vector2d
 from .....common.models import DesignProjectModel
@@ -18,10 +20,11 @@ ICreateNode = IBaseComponent["CreateNode.Request", "CreateNode.Response"]
 
 
 class CreateNode(ICreateNode):
-    def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
+    # def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
+    def __init__(self, db: MongoDbDep, logger: LoggerDep) -> None:
         self._collection = db.get_collection(CollectionName.DESIGN_PROJECTS)
         self._logger = logger
-        self._user_context = user_context
+        # self._user_context = user_context
 
     class BaseHttpRequest:
         x: float | None = p.Field(default=None)
@@ -51,7 +54,8 @@ class CreateNode(ICreateNode):
         pass
 
     class Request(BaseHttpRequest, p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID  # xài PyObjectUUID
+        organization_id: PyObjectUUID
 
     class Response(p.BaseModel):
         created_node: NodeModel
@@ -60,7 +64,8 @@ class CreateNode(ICreateNode):
         self._logger.info(execute_service_method(self))
 
         project_id = request.project_id
-        organization_id = self._user_context.organization_id
+        # organization_id = self._user_context.organization_id
+        organization_id = request.organization_id
 
         # before process
         current_project_data = self._collection.find_one({"_id": project_id})
@@ -78,7 +83,7 @@ class CreateNode(ICreateNode):
             raise BadRequestError(error_message)
 
         # process create organization
-        create_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
+        create_data = request.model_dump(exclude={"project_id", "organization_id"}, exclude_none=True)
         node = NodeModel(**create_data)
 
         # # current_project.nodes.append(node)
