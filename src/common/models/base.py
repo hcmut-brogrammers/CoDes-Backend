@@ -40,6 +40,13 @@ PyObjectUUID = Annotated[UUID, p.BeforeValidator(validate_uuid)]
 PyObjectDatetime = Annotated[datetime, p.BeforeValidator(validate_datetime)]
 
 
+class BaseMetaTimeModel(p.BaseModel):
+    created_at: PyObjectDatetime | None = p.Field(alias="created_at", default=None)
+    updated_at: PyObjectDatetime | None = p.Field(alias="updated_at", default=None)
+    is_deleted: bool | None = p.Field(alias="is_deleted", default=False)
+    deleted_at: PyObjectDatetime | None = p.Field(alias="deleted_at", default=None)
+
+
 class BaseModelWithId(p.BaseModel):
     id: PyObjectUUID = p.Field(alias="_id", default_factory=generate_uuid)
 

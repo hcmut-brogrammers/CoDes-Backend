@@ -1,14 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import OrganizationModel
+from ...common.models import OrganizationModel, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import NotFoundError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 
 IGetUserDefaultOrganization = IBaseComponent[
@@ -23,7 +22,7 @@ class GetUserDefaultOrganization(IGetUserDefaultOrganization):
         self._logger = logger
 
     class Request(p.BaseModel):
-        owner_id: UUID
+        owner_id: PyObjectUUID
 
     class Response(p.BaseModel):
         organization: OrganizationModel

@@ -9,10 +9,10 @@ from .update_design_project_by_id import UpdateDesignProject, UpdateDesignProjec
 __all__ = [
     "CreateDesignProjectDep",
     "CreateDesignProject",
-    "GetDesignProjectsByOrganizationIdDep",
-    "GetDesignProjectsByOrganizationId",
     "UpdateDesignProject",
     "UpdateDesignProjectDep",
     "DeleteDesignProjectById",
     "DeleteDesignProjectByIdDep",
+    "GetDesignProjectsByOrganizationId",
+    "GetDesignProjectsByOrganizationIdDep",
 ]

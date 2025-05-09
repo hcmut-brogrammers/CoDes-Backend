@@ -1,17 +1,15 @@
 import typing as t
 from datetime import timedelta
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from src.utils.common import get_utc_now
-
-from ...common.models import JoinOrganizationInvitationModel
+from ...common.models import JoinOrganizationInvitationModel, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, InternalServerError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
+from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 
 ICreateJoinOrganizationInvitation = IBaseComponent[
@@ -35,7 +33,7 @@ class CreateJoinOrganizationInvitation(ICreateJoinOrganizationInvitation):
         self._user_collection = db.get_collection(CollectionName.USERS)
 
     class Request(p.BaseModel):
-        user_id: UUID
+        user_id: PyObjectUUID
 
     class Response(p.BaseModel):
         invitation: JoinOrganizationInvitationModel

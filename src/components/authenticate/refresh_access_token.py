@@ -1,13 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
 from ...common.auth import TokenData
+from ...common.models import PyObjectUUID
 from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
@@ -32,7 +32,7 @@ class RefreshAccessToken(IRefreshAccessToken):
 
     class Request(p.BaseModel):
         access_token: str
-        refresh_token_id: UUID
+        refresh_token_id: PyObjectUUID
 
     class Response(SignUp.Response):
         pass

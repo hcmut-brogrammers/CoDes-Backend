@@ -1,13 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
+from ...common.models import PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import InternalServerError, NotFoundError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 
 IDeleteUserById = IBaseComponent["DeleteUserById.Request", "DeleteUserById.Response"]
@@ -20,7 +20,7 @@ class DeleteUserById(IDeleteUserById):
         self._logger = logger
 
     class Request(p.BaseModel):
-        user_id: UUID
+        user_id: PyObjectUUID
 
     class Response(p.BaseModel):
         success: bool

@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
+from ...common.models import PyObjectUUID
 from ...components.users import GetMe, GetMeDep, GetUserByEmailFragmentDep, UpdateUserDep
 from ...constants.router import ApiPath
 
@@ -40,5 +41,5 @@ async def get_users_by_email_fragment(get_users: GetUserByEmailFragmentDep, emai
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def update_user(update_user: UpdateUserDep, user_id: UUID, request: UpdateUserDep.HttpRequest):
+async def update_user(update_user: UpdateUserDep, user_id: PyObjectUUID, request: UpdateUserDep.HttpRequest):
     return await update_user.aexecute(UpdateUserDep.Request(user_id=user_id, **request.model_dump()))
