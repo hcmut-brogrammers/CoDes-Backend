@@ -297,7 +297,6 @@ class WebsocketHandler:
         await client_connection_manager.disconnect(design_project_id, client_id)
 
     async def handle_event(self, design_project_id: PyObjectUUID, message: dict) -> None:
-        self._logger.info(f"Received message: {message}")
         client_id = self._user_context.user_id
         # TODO: validate message
         event = t.cast(WebSocketEvent, message.get("event"))
