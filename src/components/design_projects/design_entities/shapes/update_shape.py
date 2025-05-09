@@ -1,24 +1,16 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from src.common.design_entities.composite_type_for_model import ShapeElementModel
-from src.common.models.base import BaseMetaTimeModel, BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
-from src.common.models.design_entities.shape import ShapeModel
-from src.components.design_projects.design_entities.nodes.create_node import CreateNode
-from src.components.design_projects.design_entities.shapes.create_shape import CreateShape
-
-from .....common.auth.user_context import UserContextDep
-from .....common.design_entities.type import GlobalCompositeOperationType, HTMLImageElement, ShapeType, Vector2d
-from .....common.models import DesignProjectModel
-from .....common.models.design_entities.node import NodeModel
+from .....common.auth import UserContextDep
+from .....common.models import BaseMetaTimeModel, PyObjectUUID, ShapeElementModel, ShapeModel
 from .....constants.mongo import CollectionName
 from .....dependencies import LoggerDep, MongoDbDep
-from .....exceptions import BadRequestError, InternalServerError
-from .....interfaces.base_component import IBaseComponent
+from .....exceptions import BadRequestError
+from .....interfaces import IBaseComponent
 from .....utils.logger import execute_service_method
+from .base_create_shape import BaseCreateShape
 
 
 def find_index_and_value(x, lst, func):
@@ -39,14 +31,14 @@ class UpdateShape(IUpdateShape):
 
     # [?] mấy fields create_at,... trong baseClass BaseMdelWithDateTime có bắt buộc phải có không?
     # hiện tại đang set mấy field đó optional ~ có thể bằng None
-    class BaseHttpRequest(BaseMetaTimeModel, CreateShape.BaseHttpRequest):
-        node_id: UUID
+    class BaseHttpRequest(BaseMetaTimeModel, BaseCreateShape.BaseHttpRequest):
+        node_id: PyObjectUUID
 
     class HttpRequest(BaseHttpRequest, p.BaseModel):
         pass
 
     class Request(BaseHttpRequest, p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID
 
     class Response(p.BaseModel):
         success: bool = True

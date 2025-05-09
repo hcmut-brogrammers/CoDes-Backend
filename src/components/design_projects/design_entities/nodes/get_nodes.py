@@ -1,17 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from .....common.design_entities.composite_type_for_model import ShapeElementModel
-from .....common.models import DesignProjectModel
-from .....common.models.design_entities.node import NodeModel
-from .....common.models.design_entities.shape import ShapeModel
+from .....common.models import DesignProjectModel, PyObjectUUID, ShapeElementModel
 from .....constants.mongo import CollectionName
 from .....dependencies import LoggerDep, MongoDbDep, UserContextDep
 from .....exceptions import BadRequestError
-from .....interfaces.base_component import IBaseComponent
+from .....interfaces import IBaseComponent
 from .....utils.logger import execute_service_method
 
 IGetNodes = IBaseComponent["GetNodes.Request", "GetNodes.Response"]
@@ -24,7 +20,7 @@ class GetNodes(IGetNodes):
         self._user_context = user_context
 
     class Request(p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID
 
     class Response(p.BaseModel):
         nodes: list[ShapeElementModel]
@@ -50,7 +46,7 @@ class GetNodes(IGetNodes):
             self._logger.error(log_message)
             raise BadRequestError(error_message)
 
-        nodes = current_project.nodes
+        nodes = current_project.elements
         return self.Response(nodes=nodes)
 
 

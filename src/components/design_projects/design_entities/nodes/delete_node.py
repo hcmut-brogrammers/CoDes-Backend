@@ -1,23 +1,14 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from src.common.design_entities.composite_type_for_model import ShapeElementModel
-from src.common.models.base import BaseMetaTimeModel, BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
-from src.common.models.design_entities.shape import ShapeModel
-from src.components.design_projects.design_entities.nodes.create_node import CreateNode
-from src.components.design_projects.design_entities.shapes.create_shape import CreateShape
-
-from .....common.auth.user_context import UserContextDep
-from .....common.design_entities.type import GlobalCompositeOperationType, HTMLImageElement, ShapeType, Vector2d
-from .....common.models import DesignProjectModel
-from .....common.models.design_entities.node import NodeModel
+from .....common.auth import UserContextDep
+from .....common.models import PyObjectUUID
 from .....constants.mongo import CollectionName
 from .....dependencies import LoggerDep, MongoDbDep
-from .....exceptions import BadRequestError, InternalServerError
-from .....interfaces.base_component import IBaseComponent
+from .....exceptions import BadRequestError
+from .....interfaces import IBaseComponent
 from .....utils.logger import execute_service_method
 
 IDeleteNode = IBaseComponent["DeleteNode.Request", "DeleteNode.Response"]
@@ -30,10 +21,10 @@ class DeleteNode(IDeleteNode):
         self._user_context = user_context
 
     class HttpRequest(p.BaseModel):
-        node_id: UUID
+        node_id: PyObjectUUID
 
     class Request(HttpRequest, p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID
 
     class Response(p.BaseModel):
         success: bool = True

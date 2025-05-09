@@ -1,6 +1,5 @@
 import typing as t
 from datetime import datetime, timedelta
-from uuid import UUID
 
 import jwt
 import pydantic as p
@@ -8,7 +7,7 @@ from fastapi import Depends
 from passlib.context import CryptContext
 
 from ..common.auth import TokenData
-from ..common.models import UserModel, UserRole
+from ..common.models import PyObjectUUID, UserModel, UserRole
 from ..dependencies import LoggerDep, SettingsDep
 from ..utils.common import get_utc_now
 
@@ -53,7 +52,7 @@ class JwtService:
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
 
-    def create_user_token_data(self, user: UserModel, user_role: UserRole, organization_id: UUID) -> TokenData:
+    def create_user_token_data(self, user: UserModel, user_role: UserRole, organization_id: PyObjectUUID) -> TokenData:
         token_data = TokenData(
             user_id=user.id,
             username=user.username,

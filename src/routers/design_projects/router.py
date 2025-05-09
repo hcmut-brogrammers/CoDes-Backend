@@ -1,18 +1,14 @@
-from uuid import UUID
-
 from fastapi import APIRouter, status
 
+from ...common.models import PyObjectUUID
 from ...components.design_projects import (
     CreateDesignProjectDep,
     DeleteDesignProjectByIdDep,
-    GetNodesDep,
+    GetDesignProjectsByOrganizationIdDep,
     UpdateDesignProjectDep,
 )
-from ...components.design_projects.design_entities.nodes.create_node import CreateNodeDep
-from ...components.design_projects.design_entities.shapes.create_shape import CreateShapeDep
 from ...constants.router import ApiPath
-from .nodes.router import router as nodes_router
-from .shapes.router import router as shapes_router
+from .elements import router as elements_router
 
 router = APIRouter(
     prefix=ApiPath.DESIGN_PROJECTS,
@@ -22,13 +18,14 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=GetNodesDep.Response,
+    response_model=GetDesignProjectsByOrganizationIdDep.Response,
     response_description="List of design projects",
     response_model_by_alias=False,
+    response_model_exclude_none=True,
     status_code=status.HTTP_200_OK,
 )
 async def get_design_projects_by_organization_id(
-    get_design_projects_by_organization_id: GetNodesDep,
+    get_design_projects_by_organization_id: GetDesignProjectsByOrganizationIdDep,
 ):
     return await get_design_projects_by_organization_id.aexecute()
 
@@ -52,7 +49,9 @@ async def create_design_project(create_design_project: CreateDesignProjectDep, r
     status_code=status.HTTP_200_OK,
 )
 async def update_design_project_by_id(
-    update_design_project_by_id: UpdateDesignProjectDep, project_id: UUID, request: UpdateDesignProjectDep.HttpRequest
+    update_design_project_by_id: UpdateDesignProjectDep,
+    project_id: PyObjectUUID,
+    request: UpdateDesignProjectDep.HttpRequest,
 ):
     return await update_design_project_by_id.aexecute(
         UpdateDesignProjectDep.Request(project_id=project_id, **request.model_dump())
@@ -66,9 +65,10 @@ async def update_design_project_by_id(
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_design_project_by_id(delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: UUID):
+async def delete_design_project_by_id(
+    delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: PyObjectUUID
+):
     return await delete_design_project_by_id.aexecute(DeleteDesignProjectByIdDep.Request(project_id=project_id))
 
 
-router.include_router(nodes_router)
-router.include_router(shapes_router)
+router.include_router(elements_router)

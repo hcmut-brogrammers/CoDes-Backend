@@ -7,7 +7,7 @@ from ...common.models import PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 from .get_me import GetMe

@@ -20,5 +20,4 @@ class ApiPath:
     DESIGN_PROJECTS = "/design-projects"
     WEBSOCKET = "/ws"
 
-    NODES = "/nodes"
-    SHAPES = "/shapes"
+    ELEMENTS = "/elements"

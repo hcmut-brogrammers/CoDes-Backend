@@ -1,5 +1,4 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
@@ -7,7 +6,7 @@ from fastapi import Depends
 from ...common.models import DesignProjectModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...interfaces.base_component import IBaseComponentWithoutRequest
+from ...interfaces import IBaseComponentWithoutRequest
 from ...utils.logger import execute_service_method
 
 IGetDesignProjectsByOrganizationId = IBaseComponentWithoutRequest["GetDesignProjectsByOrganizationId.Response"]

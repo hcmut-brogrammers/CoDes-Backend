@@ -1,15 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models.design_project import DesignProjectModel
-from ...common.models.user import UserRole
+from ...common.models import DesignProjectModel, PyObjectUUID, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, NotFoundError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 
@@ -27,7 +25,7 @@ class UpdateDesignProject(IUpdateDesignProject):
         thumbnail_url: p.HttpUrl | None = None
 
     class Request(HttpRequest, p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID
 
     class Response(p.BaseModel):
         updated_organization: DesignProjectModel

@@ -1,19 +1,14 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
-from pymongo import UpdateOne
 
-from src.components.design_projects.design_entities.nodes.delete_node import DeleteNode
-
-from .....common.auth.user_context import UserContextDep
-from .....common.models import DesignProjectModel
-from .....common.models.design_entities.node import NodeModel
+from .....common.auth import UserContextDep
+from .....common.models import PyObjectUUID
 from .....constants.mongo import CollectionName
 from .....dependencies import LoggerDep, MongoDbDep
 from .....exceptions import BadRequestError
-from .....interfaces.base_component import IBaseComponent
+from .....interfaces import IBaseComponent
 from .....utils.logger import execute_service_method
 
 IDeleteBatchNodes = IBaseComponent["DeleteBatchNodes.Request", "DeleteBatchNodes.Response"]
@@ -26,13 +21,13 @@ class DeleteBatchNodes(IDeleteBatchNodes):
         self._user_context = user_context
 
     class BaseHttpRequest:
-        node_ids: list[UUID]
+        node_ids: list[PyObjectUUID]
 
     class HttpRequest(BaseHttpRequest, p.BaseModel):
         pass
 
     class Request(BaseHttpRequest, p.BaseModel):
-        project_id: UUID
+        project_id: PyObjectUUID
 
     class Response(p.BaseModel):
         success: bool = True

@@ -62,7 +62,7 @@ class HTMLImageElement(p.BaseModel):
 
 class ShapeType(str, Enum):
     Circle = "Circle"
-    Rect = "Rect"
+    Rectangle = "Rectangle"
     RegularPolygon = "Regular-Polygon"
     Line = "Line"
     Text = "Text"

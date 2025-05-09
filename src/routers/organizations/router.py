@@ -1,7 +1,6 @@
-from uuid import UUID
-
 from fastapi import APIRouter, status
 
+from ...common.models import PyObjectUUID
 from ...components.organizations import (
     CreateUserOrganizationDep,
     DeleteOrganizationByIdDep,
@@ -56,7 +55,7 @@ async def get_user_organization_members(get_user_organization_members: GetUserOr
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def get_organization_members(get_organization_members: GetOrganizationMembersDep, organization_id: UUID):
+async def get_organization_members(get_organization_members: GetOrganizationMembersDep, organization_id: PyObjectUUID):
     return await get_organization_members.aexecute(GetOrganizationMembers.Request(organization_id=organization_id))
 
 
@@ -67,7 +66,7 @@ async def get_organization_members(get_organization_members: GetOrganizationMemb
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def get_organization_by_id(get_organization_by_id: GetOrganizationByIdDep, organization_id: UUID):
+async def get_organization_by_id(get_organization_by_id: GetOrganizationByIdDep, organization_id: PyObjectUUID):
     return await get_organization_by_id.aexecute(GetOrganizationById.Request(id=organization_id))
 
 
@@ -119,7 +118,7 @@ async def uninvite_organization_member(
 )
 async def update_organization(
     update_organization: UpdateUserOrganizationDep,
-    organization_id: UUID,
+    organization_id: PyObjectUUID,
     request: UpdateUserOrganizationDep.HttpRequest,
 ):
     return await update_organization.aexecute(
@@ -134,7 +133,7 @@ async def update_organization(
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_organization_by_id(deleted_organization: DeleteOrganizationByIdDep, organization_id: UUID):
+async def delete_organization_by_id(deleted_organization: DeleteOrganizationByIdDep, organization_id: PyObjectUUID):
     return await deleted_organization.aexecute(DeleteOrganizationByIdDep.Request(organization_id=organization_id))
 
 

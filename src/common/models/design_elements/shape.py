@@ -1,13 +1,10 @@
-from typing import Union
-
 import pydantic as p
 
-from ....common.design_entities.type import HTMLImageElement, ShapeType, Vector2d
-from ....common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
-from ....common.models.design_entities.node import NodeModel
+from .node import BaseNodeModel, NodeModel
+from .type import HTMLImageElement, ShapeType, Vector2d
 
 
-class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+class BaseShapeModel(BaseNodeModel, p.BaseModel):
     # extra properties for Shape
     shapeType: ShapeType | None = p.Field(default=None, alias="shapeType")
 
@@ -67,3 +64,9 @@ class ShapeModel(NodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, Base
     dashOffset: float | None = p.Field(default=None, alias="dashOffset")
     dashEnabled: bool | None = p.Field(default=None, alias="dashEnabled")
     perfectDrawEnabled: bool | None = p.Field(default=None, alias="perfectDrawEnabled")
+
+    model_config = p.ConfigDict(arbitrary_types_allowed=True, use_enum_values=True)
+
+
+class ShapeModel(BaseShapeModel, NodeModel):
+    pass

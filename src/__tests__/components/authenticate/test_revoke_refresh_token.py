@@ -4,10 +4,10 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.common.models.refresh_token import RefreshTokenModel
-from src.components.authenticate.refresh_access_token import RefreshAccessToken
-from src.components.authenticate.revoke_refresh_token import RevokeRefreshToken
-from src.utils.common import get_utc_now
+from ....common.models.refresh_token import RefreshTokenModel
+from ....components.authenticate.refresh_access_token import RefreshAccessToken
+from ....components.authenticate.revoke_refresh_token import RevokeRefreshToken
+from ....utils.common import get_utc_now
 
 MockSetUp = tuple[Mock, Mock, Mock, Mock]
 

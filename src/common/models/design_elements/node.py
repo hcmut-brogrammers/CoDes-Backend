@@ -1,12 +1,10 @@
-from dataclasses import dataclass
-
 import pydantic as p
 
-from src.common.design_entities.type import GlobalCompositeOperationType, Vector2d
-from src.common.models.base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
+from ..base import BaseModelWithDateTime, BaseModelWithId, BaseModelWithSoftDelete
+from .type import GlobalCompositeOperationType, Vector2d
 
 
-class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId, p.BaseModel):
+class BaseNodeModel(p.BaseModel):
     x: float | None = p.Field(default=None, alias="x")
     y: float | None = p.Field(default=None, alias="y")
     width: float | None = p.Field(default=None, alias="width")
@@ -36,6 +34,10 @@ class NodeModel(BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId,
     # filters: List[Filter] | None = p.Field(default=None, alias="filters")
 
     model_config = p.ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+
+
+class NodeModel(BaseNodeModel, BaseModelWithSoftDelete, BaseModelWithDateTime, BaseModelWithId):
+    pass
 
 
 # https://github.com/konvajs/konva/blob/master/src/Node.ts#L18

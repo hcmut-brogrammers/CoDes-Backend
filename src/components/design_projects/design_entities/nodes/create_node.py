@@ -1,19 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from src.common.models.base import PyObjectUUID
-
-from .....common.auth.user_context import UserContextDep
-from .....common.design_entities.type import GlobalCompositeOperationType, Vector2d
-from .....common.models import DesignProjectModel
-from .....common.models.design_entities.node import NodeModel
+from .....common.models import DesignProjectModel, GlobalCompositeOperationType, NodeModel, PyObjectUUID, Vector2d
 from .....constants.mongo import CollectionName
 from .....dependencies import LoggerDep, MongoDbDep
 from .....exceptions import BadRequestError
-from .....interfaces.base_component import IBaseComponent
+from .....interfaces import IBaseComponent
 from .....utils.logger import execute_service_method
 
 ICreateNode = IBaseComponent["CreateNode.Request", "CreateNode.Response"]

@@ -9,7 +9,7 @@ from ...common.models import JoinOrganizationInvitationModel, OrganizationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, InternalServerError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 from .create_join_organization_invitation import CreateJoinOrganizationInvitationDep
 
