@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...interfaces.base_component import IBaseComponentWithoutRequest
+from ...interfaces import IBaseComponentWithoutRequest
 from ...utils.logger import execute_service_method
 from .get_organization_members import GetOrganizationMembers, GetOrganizationMembersDep
 

@@ -5,11 +5,10 @@ from uuid import uuid4
 import pytest
 from pydantic import HttpUrl
 
-from src.utils.common import get_utc_now
-
 from ....common.models import OrganizationModel
 from ....components.organizations.delete_organization_by_id import DeleteOrganizationById
 from ....exceptions import BadRequestError, NotFoundError
+from ...utils.common import get_utc_now
 
 MockSetUp = tuple[Mock, Mock, Mock, AsyncMock]
 

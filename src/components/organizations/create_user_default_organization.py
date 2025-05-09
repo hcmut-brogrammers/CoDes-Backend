@@ -1,14 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import OrganizationModel, UserRole
+from ...common.models import OrganizationModel, PyObjectUUID, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import BadRequestError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 from .create_organization import CreateOrganization, CreateOrganizationDep
 
@@ -26,7 +25,7 @@ class CreateUserDefaultOrganization(ICreateUserDefaultOrganization):
         self._create_organization = create_organization
 
     class Request(p.BaseModel):
-        owner_id: UUID
+        owner_id: PyObjectUUID
         owner_username: str
 
     class Response(p.BaseModel):

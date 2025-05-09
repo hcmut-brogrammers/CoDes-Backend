@@ -1,15 +1,14 @@
 import typing as t
 from datetime import timedelta
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import RefreshTokenModel
+from ...common.models import PyObjectUUID, RefreshTokenModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import InternalServerError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.common import get_utc_now
 
@@ -29,7 +28,7 @@ class CreateRefreshToken(ICreateRefreshToken):
         access_token: str
 
     class Response(p.BaseModel):
-        refresh_token_id: UUID
+        refresh_token_id: PyObjectUUID
 
     async def aexecute(self, request: "Request") -> "Response":
         hashed_access_token = self._jwt_service.hash(request.access_token)

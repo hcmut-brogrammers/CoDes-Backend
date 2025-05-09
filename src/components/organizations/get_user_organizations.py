@@ -7,7 +7,7 @@ from ...common.models import OrganizationModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import NotFoundError
-from ...interfaces.base_component import IBaseComponentWithoutRequest
+from ...interfaces import IBaseComponentWithoutRequest
 from ...utils.logger import execute_service_method
 from ..users import GetUserById, GetUserByIdDep
 

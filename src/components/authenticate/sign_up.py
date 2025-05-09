@@ -1,18 +1,16 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import UserRole
-from ...constants.mongo import CollectionName
-from ...dependencies import LoggerDep, MongoDbDep
+from ...common.models import PyObjectUUID, UserRole
+from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
 from ..organizations import CreateUserDefaultOrganization, CreateUserDefaultOrganizationDep
-from ..users import AddUserToOrganizationDep, CreateUser, CreateUserDep, GetUserByEmail, GetUserByEmailDep
+from ..users import CreateUser, CreateUserDep, GetUserByEmail, GetUserByEmailDep
 from .create_refresh_token import CreateRefreshToken, CreateRefreshTokenDep
 
 ISignUp = IBaseComponent["SignUp.Request", "SignUp.Response"]
@@ -42,7 +40,7 @@ class SignUp(ISignUp):
 
     class Response(p.BaseModel):
         access_token: str
-        refresh_token_id: UUID
+        refresh_token_id: PyObjectUUID
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))

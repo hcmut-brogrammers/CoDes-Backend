@@ -75,6 +75,8 @@ jobs:
             --image ${{ env.IMAGE_NAME }}:${{ steps.define_tag.outputs.tag }} \
             --region ${{ env.GCP_REGION }} \
             --port 8000 \
+            --timeout 3600 \
+            --session-affinity \
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }} \

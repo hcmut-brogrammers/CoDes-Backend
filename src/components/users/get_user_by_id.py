@@ -1,13 +1,12 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import UserModel
+from ...common.models import PyObjectUUID, UserModel
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 
 IGetUserById = IBaseComponent["GetUserById.Request", "GetUserById.Response"]
@@ -19,7 +18,7 @@ class GetUserById(IGetUserById):
         self._logger = logger
 
     class Request(p.BaseModel):
-        user_id: UUID
+        user_id: PyObjectUUID
 
     class Response(p.BaseModel):
         user: UserModel | None

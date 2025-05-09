@@ -1,7 +1,6 @@
-from uuid import UUID
-
 from fastapi import APIRouter, status
 
+from ...common.models import PyObjectUUID
 from ...components.design_projects import (
     CreateDesignProjectDep,
     DeleteDesignProjectByIdDep,
@@ -9,6 +8,7 @@ from ...components.design_projects import (
     UpdateDesignProjectDep,
 )
 from ...constants.router import ApiPath
+from .elements import router as elements_router
 
 router = APIRouter(
     prefix=ApiPath.DESIGN_PROJECTS,
@@ -21,6 +21,7 @@ router = APIRouter(
     response_model=GetDesignProjectsByOrganizationIdDep.Response,
     response_description="List of design projects",
     response_model_by_alias=False,
+    response_model_exclude_none=True,
     status_code=status.HTTP_200_OK,
 )
 async def get_design_projects_by_organization_id(
@@ -48,7 +49,9 @@ async def create_design_project(create_design_project: CreateDesignProjectDep, r
     status_code=status.HTTP_200_OK,
 )
 async def update_design_project_by_id(
-    update_design_project_by_id: UpdateDesignProjectDep, project_id: UUID, request: UpdateDesignProjectDep.HttpRequest
+    update_design_project_by_id: UpdateDesignProjectDep,
+    project_id: PyObjectUUID,
+    request: UpdateDesignProjectDep.HttpRequest,
 ):
     return await update_design_project_by_id.aexecute(
         UpdateDesignProjectDep.Request(project_id=project_id, **request.model_dump())
@@ -62,5 +65,10 @@ async def update_design_project_by_id(
     response_model_by_alias=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_design_project_by_id(delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: UUID):
+async def delete_design_project_by_id(
+    delete_design_project_by_id: DeleteDesignProjectByIdDep, project_id: PyObjectUUID
+):
     return await delete_design_project_by_id.aexecute(DeleteDesignProjectByIdDep.Request(project_id=project_id))
+
+
+router.include_router(elements_router)

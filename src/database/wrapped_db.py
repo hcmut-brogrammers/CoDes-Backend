@@ -1,11 +1,10 @@
 from typing import Any, override
 
-from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
 
-from src.constants.mongo import CollectionName
+from ..constants.mongo import CollectionName
 
 IS_DELETED = "is_deleted"
 NON_SOFT_DELETE_COLLECTIONS = {CollectionName.REFRESH_TOKENS}

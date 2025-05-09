@@ -1,14 +1,13 @@
 import typing as t
-from uuid import UUID
 
 import pydantic as p
 from fastapi import Depends
 
 from ...common.auth import TokenData, UserContext, UserContextDep
-from ...common.models import OrganizationModel, UserRole
+from ...common.models import OrganizationModel, PyObjectUUID, UserRole
 from ...dependencies import LoggerDep
 from ...exceptions import BadRequestError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...services.jwt_service import JwtServiceDep
 from ...utils.logger import execute_service_method
 from ..authenticate import CreateRefreshToken, CreateRefreshTokenDep, RevokeRefreshToken, RevokeRefreshTokenDep, SignUp
@@ -36,8 +35,8 @@ class SwitchOrganization(ISwitchOrganization):
 
     class Request(p.BaseModel):
         access_token: str
-        refresh_token_id: UUID
-        organization_id: UUID
+        refresh_token_id: PyObjectUUID
+        organization_id: PyObjectUUID
 
     class Response(SignUp.Response):
         pass

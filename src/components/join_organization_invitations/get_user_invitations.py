@@ -3,12 +3,11 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from src.utils.common import get_utc_now
-
 from ...common.models import InvitationStatus, JoinOrganizationInvitationModel, PyObjectDatetime, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...interfaces.base_component import IBaseComponentWithoutRequest
+from ...interfaces import IBaseComponentWithoutRequest
+from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 from ..organizations import GetOrganizationById, GetOrganizationByIdDep
 from ..users import GetUserById, GetUserByIdDep

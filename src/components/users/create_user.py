@@ -7,7 +7,7 @@ from ...common.models import JoinedOrganization, UserModel, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep
 from ...exceptions import InternalServerError
-from ...interfaces.base_component import IBaseComponent
+from ...interfaces import IBaseComponent
 from ...utils.logger import execute_service_method
 
 ICreateUser = IBaseComponent["CreateUser.Request", "CreateUser.Response"]
