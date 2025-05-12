@@ -1,4 +1,5 @@
 import typing as t
+from enum import Enum
 
 import pydantic as p
 
@@ -8,18 +9,31 @@ from ...constants.websocket import WebSocketEvent
 ElementTemporaryId = str
 
 
+class CursorStatus(str, Enum):
+    Online = "Online"
+    Offline = "Offline"
+
+
+class CursorPosition(p.BaseModel):
+    x: float = p.Field(alias="x")
+    y: float = p.Field(alias="y")
+
+
 class UserCursor(p.BaseModel):
-    user_id: PyObjectUUID
-    username: str
-    x: float
-    y: float
+    id: PyObjectUUID = p.Field(alias="id")
+    user_id: PyObjectUUID = p.Field(alias="user_id")
+    email: str = p.Field(alias="email")
+    username: str = p.Field(alias="username")
+    position: CursorPosition = p.Field(alias="position", default=CursorPosition(x=0, y=0))
+    selected_element_id: PyObjectUUID | None = p.Field(alias="selected_element_id", default=None)
+    status: CursorStatus = p.Field(alias="status", default=CursorStatus.Online)
 
 
 class Sender(p.BaseModel):
-    id: PyObjectUUID
-    username: str
-    email: str
-    role: UserRole
+    id: PyObjectUUID = p.Field(alias="id")
+    username: str = p.Field(alias="username")
+    email: str = p.Field(alias="email")
+    role: UserRole = p.Field(alias="role")
 
 
 class ReceiverMessagePayload(p.BaseModel):
@@ -45,10 +59,10 @@ class WebSocketMessagePayload:
         element_id: PyObjectUUID
         element: ElementModel
 
-    class JoinProjectMessagePayload(p.BaseModel):
+    class JoinUserCursorMessagePayload(p.BaseModel):
         user_id: PyObjectUUID
 
-    class MoveCursorMessagePayload(p.BaseModel):
+    class UpdateUserCursorMessagePayload(p.BaseModel):
         user_cursor: UserCursor
 
     # NOTE: sender message response payloads
@@ -77,13 +91,13 @@ class WebSocketMessagePayload:
     class ReceiveElementUpdatedMessagePayload(ReceiverMessagePayload, ElementUpdatedMessagePayload):
         pass
 
-    class ReceiveUserJoinedProjectMessagePayload(ReceiverMessagePayload, p.BaseModel):
+    class ReceiveUserCursorJoinedMessagePayload(ReceiverMessagePayload, p.BaseModel):
         pass
 
-    class ReceiveUserCursorMovedMessagePayload(ReceiverMessagePayload, p.BaseModel):
-        sender_cursor: UserCursor
+    class ReceiveUserCursorUpdatedMessagePayload(ReceiverMessagePayload, p.BaseModel):
+        user_cursor: UserCursor
 
-    class ReceiveUserLeavedProjectMessagePayload(ReceiverMessagePayload, p.BaseModel):
+    class ReceiveUserCursorLeftMessagePayload(ReceiverMessagePayload, p.BaseModel):
         pass
 
     # NOTE: other message payloads
@@ -117,11 +131,11 @@ class WebSocketMessage:
     class UpdateElementMessage(IWebSocketMessage[WebSocketMessagePayload.UpdateElementMessagePayload]):
         event: t.Literal[WebSocketEvent.UpdateElement] = WebSocketEvent.UpdateElement
 
-    class JoinProjectMessage(IWebSocketMessage[WebSocketMessagePayload.JoinProjectMessagePayload]):
-        event: t.Literal[WebSocketEvent.JoinProject] = WebSocketEvent.JoinProject
+    class JoinUserCursorMessage(IWebSocketMessage[WebSocketMessagePayload.JoinUserCursorMessagePayload]):
+        event: t.Literal[WebSocketEvent.JoinUserCursor] = WebSocketEvent.JoinUserCursor
 
-    class MoveCursorMessage(IWebSocketMessage[WebSocketMessagePayload.MoveCursorMessagePayload]):
-        event: t.Literal[WebSocketEvent.MoveCursor] = WebSocketEvent.MoveCursor
+    class UpdateUserCursorMessage(IWebSocketMessage[WebSocketMessagePayload.UpdateUserCursorMessagePayload]):
+        event: t.Literal[WebSocketEvent.UpdateUserCursor] = WebSocketEvent.UpdateUserCursor
 
     # NOTE: sender response messages
 
@@ -148,20 +162,18 @@ class WebSocketMessage:
     class ReceiveElementUpdatedMessage(IWebSocketMessage[WebSocketMessagePayload.ReceiveElementUpdatedMessagePayload]):
         event: t.Literal[WebSocketEvent.ReceiveElementUpdated] = WebSocketEvent.ReceiveElementUpdated
 
-    class ReceiveUserJoinedProjectMessage(
-        IWebSocketMessage[WebSocketMessagePayload.ReceiveUserJoinedProjectMessagePayload]
+    class ReceiveUserCursorJoinedMessage(
+        IWebSocketMessage[WebSocketMessagePayload.ReceiveUserCursorJoinedMessagePayload]
     ):
-        event: t.Literal[WebSocketEvent.ReceiveUserJoinedProject] = WebSocketEvent.ReceiveUserJoinedProject
+        event: t.Literal[WebSocketEvent.ReceiveUserCursorJoined] = WebSocketEvent.ReceiveUserCursorJoined
 
-    class ReceiveUserLeavedProjectMessage(
-        IWebSocketMessage[WebSocketMessagePayload.ReceiveUserLeavedProjectMessagePayload]
-    ):
-        event: t.Literal[WebSocketEvent.ReceiveUserLeftProject] = WebSocketEvent.ReceiveUserLeftProject
+    class ReceiveUserCursorLeftMessage(IWebSocketMessage[WebSocketMessagePayload.ReceiveUserCursorLeftMessagePayload]):
+        event: t.Literal[WebSocketEvent.ReceiveUserCursorLeft] = WebSocketEvent.ReceiveUserCursorLeft
 
-    class ReceiveUserCursorMovedMessage(
-        IWebSocketMessage[WebSocketMessagePayload.ReceiveUserCursorMovedMessagePayload]
+    class ReceiveUserCursorUpdatedMessage(
+        IWebSocketMessage[WebSocketMessagePayload.ReceiveUserCursorUpdatedMessagePayload]
     ):
-        event: t.Literal[WebSocketEvent.ReceiveUserCursorMoved] = WebSocketEvent.ReceiveUserCursorMoved
+        event: t.Literal[WebSocketEvent.ReceiveUserCursorUpdated] = WebSocketEvent.ReceiveUserCursorUpdated
 
     # NOTE: other messagemessages
 
