@@ -20,7 +20,6 @@ class BaseUpdateElement(IBaseUpdateElement):
         self._logger = logger
 
     class Request(p.BaseModel):
-        # TODO: element should be a base element without element's metadata
         element: ElementModel
         organization_id: PyObjectUUID
         project_id: PyObjectUUID

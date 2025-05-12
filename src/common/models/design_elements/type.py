@@ -63,7 +63,18 @@ class HTMLImageElement(p.BaseModel):
 class ShapeType(str, Enum):
     Circle = "Circle"
     Rectangle = "Rectangle"
-    RegularPolygon = "Regular-Polygon"
+    RegularPolygon = "RegularPolygon"
     Line = "Line"
     Text = "Text"
     Image = "Image"
+    Arrow = "Arrow"
+    Ellipse = "Ellipse"
+    Ring = "Ring"
+    Star = "Star"
+
+
+class IRect(p.BaseModel):
+    x: float | None = p.Field(alias="x", default=None)
+    y: float | None = p.Field(alias="y", default=None)
+    width: float | None = p.Field(alias="width", default=None)
+    height: float | None = p.Field(alias="height", default=None)
