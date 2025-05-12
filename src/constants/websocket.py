@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 
 
@@ -12,8 +11,8 @@ class WebSocketEvent(str, Enum):
     CreateElement = "CreateElement"
     DeleteElement = "DeleteElement"
     UpdateElement = "UpdateElement"
-    JoinProject = "JoinProject"
-    MoveCursor = "MoveCursor"
+    JoinUserCursor = "JoinUserCursor"
+    UpdateUserCursor = "UpdateUserCursor"
     # NOTE: sender response events
     ElementCreated = "ElementCreated"
     ElementDeleted = "ElementDeleted"
@@ -23,6 +22,6 @@ class WebSocketEvent(str, Enum):
     ReceiveElementCreated = "ReceiveElementCreated"
     ReceiveElementDeleted = "ReceiveElementDeleted"
     ReceiveElementUpdated = "ReceiveElementUpdated"
-    ReceiveUserJoinedProject = "ReceiveUserJoinedProject"
-    ReceiveUserLeftProject = "ReceiveUserLeftProject"
-    ReceiveUserCursorMoved = "ReceiveUserCursorMoved"
+    ReceiveUserCursorJoined = "ReceiveUserCursorJoined"
+    ReceiveUserCursorLeft = "ReceiveUserCursorLeft"
+    ReceiveUserCursorUpdated = "ReceiveUserCursorUpdated"

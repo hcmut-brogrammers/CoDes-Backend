@@ -3,7 +3,7 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from ....common.models import DesignProjectModel, PyObjectUUID, ShapeElementModel
+from ....common.models import DesignProjectModel, ElementModel, PyObjectUUID
 from ....constants.mongo import CollectionName
 from ....dependencies import LoggerDep, MongoDbDep
 from ....exceptions import BadRequestError
@@ -23,7 +23,7 @@ class BaseGetElements(IBaseGetElements):
         project_id: PyObjectUUID
 
     class Response(p.BaseModel):
-        elements: list[ShapeElementModel]
+        elements: list[ElementModel]
 
     async def aexecute(self, request: Request) -> "Response":
         self._logger.info(execute_service_method(self))

@@ -19,7 +19,7 @@ from ...components.design_projects.elements import (
 )
 from ...constants.websocket import WebSocketEvent
 from ...dependencies import LoggerDep
-from ...utils.design_element import BaseElementTypeChecker
+from ...utils.design_element import BaseElementTypeChecker, create_element
 from ...utils.logger import execute_service_method
 
 client_connection_manager = ClientConnectionManager()
@@ -43,15 +43,6 @@ class WebsocketHandler:
         self._logger = logger
         self._base_delete_element = base_delete_element
         self._base_update_element = base_update_element
-
-    def _create_element(self, element: BaseElementModel) -> BaseElementModel | None:
-        if BaseElementTypeChecker.is_base_circle_element(element):
-            return BaseCircleModel(**element.model_dump())
-
-        if BaseElementTypeChecker.is_base_rectangle_element(element):
-            return BaseRectangleModel(**element.model_dump())
-
-        return None
 
     async def send_message(self, message: IWebSocketMessage) -> None:
         await self._websocket.send_json(message.model_dump(mode="json", by_alias=False, exclude_none=True))
@@ -112,15 +103,11 @@ class WebsocketHandler:
             return
 
         element = create_element_message_payload.element
-        base_element = self._create_element(element)
-        if not base_element:
-            self._logger.error("Invalid element type")
-            return
 
         base_create_element_request = BaseCreateElement.Request(
             design_project_id=design_project_id,
             organization_id=self._user_context.organization_id,
-            element=base_element,
+            element=element,
         )
         base_create_element_response = await self._base_create_element.aexecute(base_create_element_request)
         created_element = base_create_element_response.created_element
@@ -234,11 +221,13 @@ class WebsocketHandler:
             receive_element_updated_message,
         )
 
-    async def _handle_join_project_message(
+    async def _handle_join_user_cursor_message(
         self, design_project_id: PyObjectUUID, client_id: PyObjectUUID, payload: dict
     ) -> None:
         self._logger.info(execute_service_method(self))
-        join_project_message = await self._validate_payload(payload, WebSocketMessagePayload.JoinProjectMessagePayload)
+        join_project_message = await self._validate_payload(
+            payload, WebSocketMessagePayload.JoinUserCursorMessagePayload
+        )
         if not join_project_message:
             return
 
@@ -248,8 +237,8 @@ class WebsocketHandler:
         )
         await self.send_message(current_users_message)
 
-        receive_user_joined_project_message = WebSocketMessage.ReceiveUserJoinedProjectMessage(
-            payload=WebSocketMessagePayload.ReceiveUserJoinedProjectMessagePayload(
+        receive_user_joined_project_message = WebSocketMessage.ReceiveUserCursorJoinedMessage(
+            payload=WebSocketMessagePayload.ReceiveUserCursorJoinedMessagePayload(
                 sender=self._create_sender(),
             )
         )
@@ -259,19 +248,19 @@ class WebsocketHandler:
             receive_user_joined_project_message,
         )
 
-    async def _handle_move_user_cursor(
+    async def _handle_update_user_cursor_message(
         self, design_project_id: PyObjectUUID, client_id: PyObjectUUID, payload: dict
     ) -> None:
         move_cursor_message_payload = await self._validate_payload(
-            payload, WebSocketMessagePayload.MoveCursorMessagePayload
+            payload, WebSocketMessagePayload.UpdateUserCursorMessagePayload
         )
         if not move_cursor_message_payload:
             return
 
-        receive_user_cursor_moved_message = WebSocketMessage.ReceiveUserCursorMovedMessage(
-            payload=WebSocketMessagePayload.ReceiveUserCursorMovedMessagePayload(
+        receive_user_cursor_moved_message = WebSocketMessage.ReceiveUserCursorUpdatedMessage(
+            payload=WebSocketMessagePayload.ReceiveUserCursorUpdatedMessagePayload(
                 sender=self._create_sender(),
-                sender_cursor=move_cursor_message_payload.user_cursor,
+                user_cursor=move_cursor_message_payload.user_cursor,
             )
         )
         await self.broadcast_message(
@@ -283,8 +272,8 @@ class WebsocketHandler:
     async def handle_disconnected_client(self, design_project_id: PyObjectUUID) -> None:
         self._logger.info(execute_service_method(self))
         client_id = self._user_context.user_id
-        receive_user_leaved_project_message = WebSocketMessage.ReceiveUserLeavedProjectMessage(
-            payload=WebSocketMessagePayload.ReceiveUserLeavedProjectMessagePayload(
+        receive_user_leaved_project_message = WebSocketMessage.ReceiveUserCursorLeftMessage(
+            payload=WebSocketMessagePayload.ReceiveUserCursorLeftMessagePayload(
                 sender=self._create_sender(),
             )
         )
@@ -314,10 +303,10 @@ class WebsocketHandler:
             await self._handle_delete_element_message(design_project_id, client_id, payload)
         elif event == WebSocketEvent.UpdateElement:
             await self._handle_update_element_message(design_project_id, client_id, payload)
-        elif event == WebSocketEvent.JoinProject:
-            await self._handle_join_project_message(design_project_id, client_id, payload)
-        elif event == WebSocketEvent.MoveCursor:
-            return await self._handle_move_user_cursor(design_project_id, client_id, payload)
+        elif event == WebSocketEvent.JoinUserCursor:
+            await self._handle_join_user_cursor_message(design_project_id, client_id, payload)
+        elif event == WebSocketEvent.UpdateUserCursor:
+            return await self._handle_update_user_cursor_message(design_project_id, client_id, payload)
         else:
             error_message = WebSocketMessage.ErrorMessage(
                 payload=WebSocketMessagePayload.ErrorMessagePayload(message="Unknown event")
