@@ -4,6 +4,7 @@ from ...common.models import PyObjectUUID
 from ...components.design_projects import (
     CreateDesignProjectDep,
     DeleteDesignProjectByIdDep,
+    DuplicateDesignProjectDep,
     GetDesignProjectsByOrganizationIdDep,
     UpdateDesignProjectDep,
 )
@@ -56,6 +57,20 @@ async def update_design_project_by_id(
     return await update_design_project_by_id.aexecute(
         UpdateDesignProjectDep.Request(project_id=project_id, **request.model_dump())
     )
+
+
+@router.post(
+    "/duplicate/{project_id}",
+    response_model=DuplicateDesignProjectDep.Response,
+    response_description="Project updated",
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK,
+)
+async def duplicate_design_project_by_id(
+    update_design_project_by_id: DuplicateDesignProjectDep,
+    project_id: PyObjectUUID,
+):
+    return await update_design_project_by_id.aexecute(DuplicateDesignProjectDep.Request(project_id=project_id))
 
 
 @router.delete(
