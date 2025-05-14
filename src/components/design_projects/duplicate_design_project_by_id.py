@@ -11,24 +11,20 @@ from ...interfaces import IBaseComponent
 from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
 
-IUpdateDesignProject = IBaseComponent["UpdateDesignProject.Request", "UpdateDesignProject.Response"]
+IDuplicateDesignProject = IBaseComponent["DuplicateDesignProject.Request", "DuplicateDesignProject.Response"]
 
 
-class UpdateDesignProject(IUpdateDesignProject):
+class DuplicateDesignProject(IDuplicateDesignProject):
     def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
         self._collection = db.get_collection(CollectionName.DESIGN_PROJECTS)
         self._logger = logger
         self._user_context = user_context
 
-    class HttpRequest(p.BaseModel):
-        name: str | None = None
-        thumbnail_url: p.HttpUrl | None = None
-
-    class Request(HttpRequest, p.BaseModel):
+    class Request(p.BaseModel):
         project_id: PyObjectUUID
 
     class Response(p.BaseModel):
-        updated_project: DesignProjectModel
+        duplicated_project: DesignProjectModel
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
@@ -41,21 +37,7 @@ class UpdateDesignProject(IUpdateDesignProject):
             self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
             raise BadRequestError("User is not the owner of the organization")
 
-        update_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
-
-        # handle the case when no fields are provided for update
-        if not update_data:
-            error_message = f"No fields to update for project id {request.project_id}."
-            self._logger.info(error_message)
-            raise BadRequestError(error_message)
-
-        # check if name of project exist
-        project_with_name_exist = self._collection.find_one({"name": request.name, "organization_id": organization_id})
-        if project_with_name_exist:
-            self._logger.error(f"Project with name {request.name} has already exist.")
-            raise BadRequestError("Project with name {request.name} has already exist. Please choose another name.")
-
-        # before update condition check
+        # before duplicate condition check
         filter = {"_id": request.project_id}
         project_data = self._collection.find_one(filter)
 
@@ -66,38 +48,36 @@ class UpdateDesignProject(IUpdateDesignProject):
             raise NotFoundError(error_message)
 
         # check if the user have joined the organization yet
-        updated_project = DesignProjectModel(**project_data).model_copy()
+        found_project = DesignProjectModel(**project_data).model_copy()
 
-        if updated_project.organization_id != organization_id:
-            log_message = f"User have no permission to update the project {request.project_id}."
-            error_message = f"User have no permission to update the project."
+        if found_project.organization_id != organization_id:
+            log_message = f"User have no permission to duplicate the project {request.project_id}."
+            error_message = f"User have no permission to duplicate the project."
             self._logger.error(log_message)
             raise BadRequestError(error_message)
 
         # prepare project instance
-        if updated_project.owner_id != user_id:
+        if found_project.owner_id != user_id:
             log_message = f"User {user_id} is not the owner of the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        if updated_project.organization_id != organization_id:
+        if found_project.organization_id != organization_id:
             log_message = f"Organization {organization_id} does not have the project {request.project_id}."
             error_message = f"Project not found."
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        # process update
-        if request.name:
-            updated_project.name = request.name
-        if request.thumbnail_url:
-            updated_project.thumbnail_url = str(request.thumbnail_url)
-        updated_project.updated_at = get_utc_now()
-
-        self._collection.update_one({"_id": updated_project.id}, {"$set": updated_project.model_dump(exclude={"id"})})
+        # process duplicate
+        duplicated_project = DesignProjectModel(
+            **found_project.model_dump(include={"name", "thumbnail_url", "organization_id", "owner_id", "elements"})
+        )
+        duplicated_project.name = "Copy of " + duplicated_project.name
+        self._collection.insert_one(duplicated_project.model_dump(by_alias=True))
 
         # process response
-        return self.Response(updated_project=updated_project)
+        return self.Response(duplicated_project=duplicated_project)
 
 
-UpdateDesignProjectDep = t.Annotated[UpdateDesignProject, Depends()]
+DuplicateDesignProjectDep = t.Annotated[DuplicateDesignProject, Depends()]

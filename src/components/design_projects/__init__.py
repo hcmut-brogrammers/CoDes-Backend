@@ -1,5 +1,6 @@
 from .create_design_project import CreateDesignProject, CreateDesignProjectDep
 from .delete_design_project_by_id import DeleteDesignProjectById, DeleteDesignProjectByIdDep
+from .duplicate_design_project_by_id import DuplicateDesignProject, DuplicateDesignProjectDep
 from .get_design_projects_by_organization_id import (
     GetDesignProjectsByOrganizationId,
     GetDesignProjectsByOrganizationIdDep,
@@ -15,4 +16,6 @@ __all__ = [
     "DeleteDesignProjectByIdDep",
     "GetDesignProjectsByOrganizationId",
     "GetDesignProjectsByOrganizationIdDep",
+    "DuplicateDesignProject",
+    "DuplicateDesignProjectDep",
 ]

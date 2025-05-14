@@ -41,6 +41,12 @@ class CreateDesignProject(ICreateDesignProject):
             self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
             raise BadRequestError("User is not the owner of the organization")
 
+        # check if name of project exist
+        project_with_name_exist = self._collection.find_one({"name": request.name, "organization_id": organization_id})
+        if project_with_name_exist:
+            self._logger.error(f"Project with name {request.name} has already exist.")
+            raise BadRequestError("Project with name {request.name} has already exist. Please choose another name.")
+
         # process create organization
         project = DesignProjectModel(
             name=request.name,
