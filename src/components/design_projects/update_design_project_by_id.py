@@ -28,7 +28,7 @@ class UpdateDesignProject(IUpdateDesignProject):
         project_id: PyObjectUUID
 
     class Response(p.BaseModel):
-        updated_organization: DesignProjectModel
+        updated_project: DesignProjectModel
 
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
@@ -36,20 +36,17 @@ class UpdateDesignProject(IUpdateDesignProject):
         user_id = self._user_context.user_id
         organization_id = self._user_context.organization_id
 
-        # check if the user is the owner of the organization
         if self._user_context.role != UserRole.OrganizationAdmin:
             self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
             raise BadRequestError("User is not the owner of the organization")
 
         update_data = request.model_dump(exclude={"project_id"}, exclude_none=True)
 
-        # handle the case when no fields are provided for update
         if not update_data:
             error_message = f"No fields to update for project id {request.project_id}."
             self._logger.info(error_message)
             raise BadRequestError(error_message)
 
-        # before update condition check
         filter = {"_id": request.project_id}
         project_data = self._collection.find_one(filter)
 
@@ -59,7 +56,6 @@ class UpdateDesignProject(IUpdateDesignProject):
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        # check if the user have joined the organization yet
         updated_project = DesignProjectModel(**project_data).model_copy()
 
         if updated_project.organization_id != organization_id:
@@ -68,7 +64,6 @@ class UpdateDesignProject(IUpdateDesignProject):
             self._logger.error(log_message)
             raise BadRequestError(error_message)
 
-        # prepare project instance
         if updated_project.owner_id != user_id:
             log_message = f"User {user_id} is not the owner of the project {request.project_id}."
             error_message = f"Project not found."
@@ -81,7 +76,6 @@ class UpdateDesignProject(IUpdateDesignProject):
             self._logger.error(log_message)
             raise NotFoundError(error_message)
 
-        # process update
         if request.name:
             updated_project.name = request.name
         if request.thumbnail_url:
@@ -90,8 +84,7 @@ class UpdateDesignProject(IUpdateDesignProject):
 
         self._collection.update_one({"_id": updated_project.id}, {"$set": updated_project.model_dump(exclude={"id"})})
 
-        # process response
-        return self.Response(updated_organization=updated_project)
+        return self.Response(updated_project=updated_project)
 
 
 UpdateDesignProjectDep = t.Annotated[UpdateDesignProject, Depends()]

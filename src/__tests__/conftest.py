@@ -16,6 +16,7 @@ from ..components.authenticate import (
 from ..components.design_projects import (
     CreateDesignProject,
     DeleteDesignProjectById,
+    GetDesignProjectById,
     GetDesignProjectsByOrganizationId,
     UpdateDesignProject,
 )
@@ -105,6 +106,11 @@ def mock_update_design_project() -> Mock:
 @pytest.fixture
 def mock_delete_design_project_by_id() -> Mock:
     return Mock(spec=DeleteDesignProjectById)
+
+
+@pytest.fixture
+def mock_get_design_project_by_id() -> Mock:
+    return Mock(spec=GetDesignProjectById)
 
 
 # NOTE: mock join organization invitation-related components

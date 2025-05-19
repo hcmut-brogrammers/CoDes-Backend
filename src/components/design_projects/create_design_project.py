@@ -3,8 +3,7 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import DesignProjectModel
-from ...common.models.user import UserRole
+from ...common.models import DesignProjectModel, ElementModel, PyObjectHttpUrlStr, UserRole
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
 from ...exceptions import BadRequestError, InternalServerError
@@ -26,6 +25,8 @@ class CreateDesignProject(ICreateDesignProject):
 
     class Request(p.BaseModel):
         name: str
+        thumbnail_url: PyObjectHttpUrlStr | None = None
+        elements: list[ElementModel] = []
 
     class Response(p.BaseModel):
         created_project: DesignProjectModel
@@ -36,26 +37,24 @@ class CreateDesignProject(ICreateDesignProject):
         user_id = self._user_context.user_id
         organization_id = self._user_context.organization_id
 
-        # check if the user is the owner of the organization
         if self._user_context.role != UserRole.OrganizationAdmin:
             self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
             raise BadRequestError("User is not the owner of the organization")
 
-        # process create organization
         project = DesignProjectModel(
             name=request.name,
-            thumbnail_url=str(DEFAULT_THUMBNAIL_URL),
+            thumbnail_url=request.thumbnail_url or str(DEFAULT_THUMBNAIL_URL),
             owner_id=user_id,
             organization_id=organization_id,
+            elements=request.elements,
         )
         project_data = project.model_dump(by_alias=True)
-        inserted_project = self._collection.insert_one(project_data)
+        insert_one_result = self._collection.insert_one(project_data)
 
-        # process response
-        created_project = self._collection.find_one({"_id": inserted_project.inserted_id})
+        created_project = self._collection.find_one({"_id": insert_one_result.inserted_id})
         if not created_project:
             self._logger.error(
-                f"Insert project data with id {inserted_project.inserted_id} successfully, but unable to find the created project"
+                f"Insert project data with id {insert_one_result.inserted_id} successfully, but unable to find the created project"
             )
             raise InternalServerError("Insert project data successfully, but unable to find the created project")
 
