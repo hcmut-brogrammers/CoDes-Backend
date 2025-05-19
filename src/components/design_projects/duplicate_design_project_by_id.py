@@ -3,22 +3,32 @@ import typing as t
 import pydantic as p
 from fastapi import Depends
 
-from ...common.models import DesignProjectModel, PyObjectUUID, UserRole
+from ...common.models import DesignProjectModel, PyObjectUUID
 from ...constants.mongo import CollectionName
 from ...dependencies import LoggerDep, MongoDbDep, UserContextDep
-from ...exceptions import BadRequestError, NotFoundError
+from ...exceptions import BadRequestError
 from ...interfaces import IBaseComponent
-from ...utils.common import get_utc_now
 from ...utils.logger import execute_service_method
+from .create_design_project import CreateDesignProjectDep
+from .get_design_project_by_id import GetDesignProjectByIdDep
 
 IDuplicateDesignProject = IBaseComponent["DuplicateDesignProject.Request", "DuplicateDesignProject.Response"]
 
 
 class DuplicateDesignProject(IDuplicateDesignProject):
-    def __init__(self, db: MongoDbDep, logger: LoggerDep, user_context: UserContextDep) -> None:
+    def __init__(
+        self,
+        db: MongoDbDep,
+        logger: LoggerDep,
+        user_context: UserContextDep,
+        create_design_project: CreateDesignProjectDep,
+        get_design_project_by_id: GetDesignProjectByIdDep,
+    ) -> None:
         self._collection = db.get_collection(CollectionName.DESIGN_PROJECTS)
         self._logger = logger
         self._user_context = user_context
+        self._create_design_project = create_design_project
+        self._get_design_project_by_id = get_design_project_by_id
 
     class Request(p.BaseModel):
         project_id: PyObjectUUID
@@ -29,55 +39,32 @@ class DuplicateDesignProject(IDuplicateDesignProject):
     async def aexecute(self, request: "Request") -> "Response":
         self._logger.info(execute_service_method(self))
 
-        user_id = self._user_context.user_id
         organization_id = self._user_context.organization_id
 
-        # check if the user is the owner of the organization
-        if self._user_context.role != UserRole.OrganizationAdmin:
-            self._logger.error(f"User {user_id} is not the owner of the organization {organization_id}")
-            raise BadRequestError("User is not the owner of the organization")
-
-        # before duplicate condition check
-        filter = {"_id": request.project_id}
-        project_data = self._collection.find_one(filter)
-
-        if project_data is None:
-            log_message = f"Project with id {request.project_id} not found."
-            error_message = f"Project not found."
-            self._logger.error(log_message)
-            raise NotFoundError(error_message)
-
-        # check if the user have joined the organization yet
-        found_project = DesignProjectModel(**project_data).model_copy()
-
-        if found_project.organization_id != organization_id:
-            log_message = f"User have no permission to duplicate the project {request.project_id}."
-            error_message = f"User have no permission to duplicate the project."
-            self._logger.error(log_message)
-            raise BadRequestError(error_message)
-
-        # prepare project instance
-        if found_project.owner_id != user_id:
-            log_message = f"User {user_id} is not the owner of the project {request.project_id}."
-            error_message = f"Project not found."
-            self._logger.error(log_message)
-            raise NotFoundError(error_message)
-
-        if found_project.organization_id != organization_id:
-            log_message = f"Organization {organization_id} does not have the project {request.project_id}."
-            error_message = f"Project not found."
-            self._logger.error(log_message)
-            raise NotFoundError(error_message)
-
-        # process duplicate
-        duplicated_project = DesignProjectModel(
-            **found_project.model_dump(include={"name", "thumbnail_url", "organization_id", "owner_id", "elements"})
+        get_design_project_by_id_request = self._get_design_project_by_id.Request(
+            project_id=request.project_id,
         )
-        duplicated_project.name = "Copy of " + duplicated_project.name
-        self._collection.insert_one(duplicated_project.model_dump(by_alias=True))
+        get_design_project_by_id_response = await self._get_design_project_by_id.aexecute(
+            get_design_project_by_id_request
+        )
+        design_project = get_design_project_by_id_response.design_project
 
-        # process response
-        return self.Response(duplicated_project=duplicated_project)
+        if design_project.organization_id != organization_id:
+            self._logger.error(f"User have no permission to duplicate the project {request.project_id}.")
+            raise BadRequestError(f"User have no permission to duplicate the project.")
+
+        create_design_project_request = self._create_design_project.Request(
+            name=self.make_copy_project_name(design_project.name),
+            thumbnail_url=design_project.thumbnail_url,
+            elements=design_project.elements,
+        )
+        create_design_project_response = await self._create_design_project.aexecute(create_design_project_request)
+        created_project = create_design_project_response.created_project
+
+        return self.Response(duplicated_project=created_project)
+
+    def make_copy_project_name(self, project_name: str) -> str:
+        return f"Copy of {project_name}"
 
 
 DuplicateDesignProjectDep = t.Annotated[DuplicateDesignProject, Depends()]
