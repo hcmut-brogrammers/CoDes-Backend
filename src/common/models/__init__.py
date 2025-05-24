@@ -1,5 +1,15 @@
+from .ai_conversation import (
+    AIAssistantMessage,
+    AIConversation,
+    AIFunctionCall,
+    AIMessage,
+    AIMessageRole,
+    AISystemMessage,
+    AIToolCall,
+    AIToolCallType,
+    AIUserMessage,
+)
 from .base import (
-    BaseMetaTimeModel,
     BaseModelWithDateTime,
     BaseModelWithId,
     BaseModelWithSoftDelete,
@@ -7,6 +17,7 @@ from .base import (
     PyObjectHttpUrlStr,
     PyObjectUUID,
 )
+from .bot import BotConfig, BotModel, LLMProvider, OpenAIBotConfig
 from .design_elements import *
 from .design_project import DesignProjectModel
 from .join_organization_invitation import InvitationStatus, InviteeAction, JoinOrganizationInvitationModel, TakenAction
@@ -35,8 +46,22 @@ __all__ = [
     "BaseModelWithId",
     "BaseModelWithDateTime",
     "BaseModelWithSoftDelete",
-    "BaseMetaTimeModel",
     "PyObjectUUID",
     "PyObjectDatetime",
     "PyObjectHttpUrlStr",
+    # Bot model
+    "BotModel",
+    "LLMProvider",
+    "OpenAIBotConfig",
+    "BotConfig",
+    # AI conversation model
+    "AIConversation",
+    "AIUserMessage",
+    "AISystemMessage",
+    "AIAssistantMessage",
+    "AIMessage",
+    "AIMessageRole",
+    "AIToolCall",
+    "AIToolCallType",
+    "AIFunctionCall",
 ]

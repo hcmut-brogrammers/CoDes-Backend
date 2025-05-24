@@ -40,13 +40,6 @@ PyObjectUUID = Annotated[UUID, p.BeforeValidator(validate_uuid)]
 PyObjectDatetime = Annotated[datetime, p.BeforeValidator(validate_datetime)]
 
 
-class BaseMetaTimeModel(p.BaseModel):
-    created_at: PyObjectDatetime | None = p.Field(alias="created_at", default=None)
-    updated_at: PyObjectDatetime | None = p.Field(alias="updated_at", default=None)
-    is_deleted: bool | None = p.Field(alias="is_deleted", default=False)
-    deleted_at: PyObjectDatetime | None = p.Field(alias="deleted_at", default=None)
-
-
 class BaseModelWithId(p.BaseModel):
     id: PyObjectUUID = p.Field(alias="_id", default_factory=generate_uuid)
 
@@ -60,11 +53,17 @@ class BaseModelWithDateTime(p.BaseModel):
     created_at: PyObjectDatetime = p.Field(alias="created_at", default_factory=get_utc_now)
     updated_at: PyObjectDatetime = p.Field(alias="updated_at", default_factory=get_utc_now)
 
-    model_config = p.ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = p.ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
 
 
 class BaseModelWithSoftDelete(p.BaseModel):
     is_deleted: bool = p.Field(alias="is_deleted", default=False)
     deleted_at: PyObjectDatetime | None = p.Field(alias="deleted_at", default=None)
 
-    model_config = p.ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = p.ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )

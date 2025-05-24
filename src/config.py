@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     JWT_SECRET_KEY: str
     MONGO_URI: str
+    OPENAI_API_KEY: str
 
 
 settings = Settings()

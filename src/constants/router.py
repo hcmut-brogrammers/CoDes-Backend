@@ -21,3 +21,5 @@ class ApiPath:
     WEBSOCKET = "/ws"
 
     ELEMENTS = "/elements"
+    BOTS = "/bots"
+    AI_CONVERSATIONS = "/ai-conversations"

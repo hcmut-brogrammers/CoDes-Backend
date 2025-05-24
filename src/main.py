@@ -5,7 +5,16 @@ from fastapi.responses import JSONResponse
 
 from .exceptions import AppException, ErrorContent, ErrorJSONResponse, ErrorType
 from .middlewares.authenticate_middleware import AuthenticateMiddleware
-from .routers import authenticate, design_projects, join_organization_invitations, organizations, users, websocket
+from .routers import (
+    ai_conversations,
+    authenticate,
+    bots,
+    design_projects,
+    join_organization_invitations,
+    organizations,
+    users,
+    websocket,
+)
 from .services.jwt_service import JwtService
 
 app = FastAPI(dependencies=[Depends(JwtService)])
@@ -54,3 +63,7 @@ app.include_router(join_organization_invitations.router)
 app.include_router(design_projects.router)
 
 app.include_router(websocket.router)
+
+app.include_router(bots.router)
+
+app.include_router(ai_conversations.router)

@@ -9,3 +9,5 @@ class CollectionName:
     ORGANIZATIONS: str = "organizations"
     JOIN_ORGANIZATION_INVITATIONS: str = "join_organization_invitations"
     DESIGN_PROJECTS: str = "design_projects"
+    BOTS = "bots"
+    AI_CONVERSATIONS = "ai_conversations"
